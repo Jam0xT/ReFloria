@@ -3,7 +3,6 @@
         <svg viewBox="0 0 500 500" class="loading_icon">
             <circle r="200" cx="250" cy="250"/>
         </svg>
-        <div class="loading_mask"></div>
         <p class="loading_text _font_4">Loading...</p>
     </div>
 </template>
@@ -14,18 +13,16 @@ import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
 const store = global();
 const loading = {
-    icon: undefined as any,
-    circle: undefined as any,
-    text: undefined as any,
-    mask: undefined as any,
-    animator: undefined as any,
+    container: null as null | HTMLElement,
+    icon: null as null | HTMLElement,
+    circle: null as null | HTMLElement,
+    animator: null as unknown as gsap.core.Timeline,
     visible: ref(true),
     init() {
+        this.container = document.querySelector('.loading');
         this.icon = document.querySelector('.loading_icon');
         this.circle = document.querySelector('.loading_icon circle');
-        this.text = document.querySelector('.loading_text');
-        this.mask = document.querySelector('.loading_mask');
-        this.animator = gsap.timeline().fromTo(
+        this.animator = gsap.timeline().delay(0.1).fromTo(
             this.circle,
             {
                 strokeDashoffset: 250,
@@ -54,11 +51,35 @@ const loading = {
                 strokeDashoffset: 745,
                 duration: 1,
                 ease: 'power3.out',
+                onComplete: () => {
+                    store.first_welcome();
+                }
             }
         );
     },
-    hide() {
-
+    hide(immediate?: Function, next?: Function): void {
+        console.log('123');
+        if ( this.animator.isActive() ) {
+            return ;
+        }
+        if ( immediate ) {
+            immediate();
+        }
+        this.animator = gsap.timeline().to(
+            this.container,
+            {
+                clipPath: "polygon(0% 0%, 0% 100%, 0% 100%, 0% 0%)",
+                duration: 1,
+                ease: 'power3.out',
+                onComplete: () => {
+                    this.visible.value = false;
+                    if ( next ) {
+                        next();
+                    }
+                },
+            },
+            '<'
+        );
     },
 };
 
@@ -74,6 +95,8 @@ onMounted(() => {
     --scale: 1;
     justify-content: center;
     align-items: center;
+    background-color: floralwhite;
+    clip-path: polygon(0% 0%, 0% 100%, 100% 100%, 100% 0%);
     z-index: 9999999;
 }
 
