@@ -102,7 +102,8 @@ dist
 
 # vuepress v2.x temp and cache directory
 .temp
-.cache
+#.cache
+# ^ commented because defined more than once
 
 # vitepress build output
 **/.vitepress/dist
@@ -134,5 +135,4 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-/.idea/
 /.idea/
