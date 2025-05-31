@@ -58,7 +58,6 @@ const loading = {
         );
     },
     hide(immediate?: Function, next?: Function): void {
-        console.log('123');
         if ( this.animator.isActive() ) {
             return ;
         }
@@ -77,8 +76,7 @@ const loading = {
                         next();
                     }
                 },
-            },
-            '<'
+            }
         );
     },
 };
