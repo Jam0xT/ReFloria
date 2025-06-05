@@ -15,6 +15,8 @@ import Welcome from './components/welcome.vue';
 
     font-size: 1vmin;
     font-family: content;
+    --margin-x: calc(var(--scale) * 3rem);
+    --margin-y: calc(var(--scale) * 3rem);
 }
 p {
     user-select: none;
@@ -62,10 +64,13 @@ body {
     font-size: calc(var(--scale) * 3.2rem);
 }
 ._font_5 {
-    font-size: calc(var(--scale) * 11.5rem);
+    font-size: calc(var(--scale) * 6rem);
 }
 ._font_6 {
     font-size: calc(var(--scale) * 18rem);
+}
+._font_7 {
+    font-size: calc(var(--scale) * 24rem);
 }
 
 ._fullscreen {
