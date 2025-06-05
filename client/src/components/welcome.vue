@@ -1,15 +1,5 @@
 <template>
     <div class="welcome _fullscreen" v-show="welcome.visible.value">
-        <div class="title">
-            <p class="text_re _font_7">RE</p>
-            <p class="text_floria _font_6">Floria</p>
-        </div>
-        <svg viewBox="0 0 200 500" class="rect_left">
-            <rect x="0" y="0" width="200" height="500"/>
-        </svg>
-        <svg viewBox="0 0 500 200" class="rect_bottom">
-            <rect x="0" y="0" width="500" height="200"/>
-        </svg>
         <div class="links">
             <a href="https://github.com/jam0xt/refloria" target="_blank">
                 <svg viewBox="0 0 24 24">
@@ -30,9 +20,23 @@
                 </svg>
             </a>
         </div>
-        <div class="welcome_nav">
-            <div class="welcome_nav_play">
-            </div>
+        <div class="title">
+            <p class="text_re _font_7">RE</p>
+            <p class="text_floria _font_6">Floria</p>
+        </div>
+        <svg viewBox="0 0 200 500" class="rect_left">
+            <rect x="0" y="0" width="200" height="500"/>
+        </svg>
+        <svg viewBox="0 0 500 200" class="rect_bottom">
+            <rect x="0" y="0" width="500" height="200"/>
+        </svg>
+        <svg viewBox="0 0 120 20" class="line_left">
+            <line x1="10" y1="10" x2="110" y2="10"/>
+        </svg>
+        <div class="welcome_nav_play" @click="">
+            <svg viewBox="0 0 300 300" class="button_play" >
+                <polygon points="60,60 60,240 215.88,150"/>
+            </svg>
         </div>
     </div>
 </template>
@@ -61,7 +65,6 @@ const welcome = {
         this.animator = gsap.timeline().fromTo(
             this.textRe,
             {
-
             },
             {
 
@@ -136,6 +139,32 @@ onMounted(() => {
     width: calc(var(--scale) * 300dvh);
     mix-blend-mode: darken;
     z-index: 1000;
+}
+
+.line_left {
+    stroke: #000000;
+    stroke-width: calc(var(--scale) * 0.02rem);
+    stroke-linecap: round;
+    rotate: 80deg;
+    position: absolute;
+    left: calc(var(--scale) * -50vw);
+    stroke-dasharray: 0 1;
+    z-index: 999;
+}
+
+.welcome_nav_play {
+    cursor: pointer;
+}
+
+.button_play {
+    top: calc(var(--scale) * 46rem);
+    left: calc(var(--scale) * 43vw);
+    position: absolute;
+    fill: #87c0d6;
+    width: calc(var(--scale) * 25rem);
+    stroke: #80babf;
+    stroke-linejoin: round;
+    stroke-width: calc(var(--scale) * 40);
 }
 
 .links {
