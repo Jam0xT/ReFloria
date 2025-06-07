@@ -1,19 +1,9 @@
 interface Config {
-    gameServerList: GameServer[];
-}
-
-interface GameServer {
-    region: string;
-    ip: string;
+    API: string;
 }
 
 const config: Config = {
-    gameServerList: [
-        {
-            region: 'LCH',
-            ip: '127.0.0.1',
-        },
-    ],
+    API: "localhost:5173",
 }
 
 export default config;
