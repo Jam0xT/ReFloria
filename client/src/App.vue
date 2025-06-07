@@ -1,11 +1,13 @@
 <template>
     <Loading />
+    <Background />
     <Welcome />
 </template>
 
 <script setup lang="ts">
 import Loading from './components/loading.vue';
 import Welcome from './components/welcome.vue';
+import Background from './components/background.vue'
 </script>
 
 <style>
