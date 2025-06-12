@@ -18,7 +18,6 @@
 import { global } from '../stores/global.ts';
 import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
-import { fetchServerList } from '../../../api/meta'; // 稍后会创建这个API文件
 
 const store = global();
 

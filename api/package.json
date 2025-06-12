@@ -13,9 +13,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "uuid": "^11.1.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
-    "uws": "^200.0.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
