@@ -1,14 +1,24 @@
 <template>
-    <Loading />
-    <Background />
-    <Welcome />
+  <Loading />
+  <Background />
+  <Welcome />
+  <Start />
+  <CreateRoom />
+  <JoinRoom />
+  <Room />
 </template>
 
 <script setup lang="ts">
 import Loading from './components/loading.vue';
 import Welcome from './components/welcome.vue';
-import Background from './components/background.vue'
+import Background from './components/background.vue';
+import Start from './components/start.vue';
+import CreateRoom from './components/createRoom.vue';
+import JoinRoom from './components/joinRoom.vue';
+import Room from './components/room.vue';
 </script>
+
+<!-- 保持原有样式不变 -->
 
 <style>
 * {

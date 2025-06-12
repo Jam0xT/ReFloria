@@ -24,7 +24,7 @@
             <p class="text_re _font_7">RE</p>
             <p class="text_floria _font_6">Floria</p>
         </div>
-        <div class="welcome_nav_play" @click="">
+        <div class="welcome_nav_play" @click="welcome.startGame">
             <svg viewBox="0 0 300 300" class="button_play" >
                 <polygon points="60,60 60,240 215.88,150"/>
             </svg>
@@ -77,16 +77,84 @@ const welcome = {
         if ( immediate ) {
             immediate();
         }
-        this.visible.value = false;
+      this.animator = gsap.timeline().to(
+          this.container,
+          {
+            clipPath: "polygon(0% 0%, 0% 100%, 0% 100%, 0% 0%)",
+            duration: 1,
+            ease: 'power3.out',
+            onComplete: () => {
+              this.visible.value = false;
+              if ( next ) {
+                next();
+              }
+            },
+          }
+      );
     },
+    startGame() :void {
+      console.log("Starting game...")
+      this.hide(null, () => {
+        store.show_start();
+      });
+    }
 };
-
 store.show_welcome = welcome.show.bind(welcome);
 store.hide_welcome = welcome.hide.bind(welcome);
 
 onMounted(() => {
     welcome.init();
 });
+
+// const serverUrl = 'ws://localhost:9001';
+// const message = 'Hello';
+//
+// const sendMessage = () => {
+//   // // 使用 uWebSockets.js 连接 WebSocket
+//   const ws = new WebSocket('ws://localhost:9001/ws');
+//   let roomId : string;
+//   ws.onopen = () => {
+//     console.log('Connected to WebSocket server');
+//     let msg: {type : string; options:
+//           {isPublic : boolean; area : string; totalPlaye : number; playerPerTeam : number}} = {
+//       type :  "createRoom",
+//       options:  {
+//         isPublic :  true,
+//         area :  "area1",
+//         totalPlayer :  10,
+//         playerPerTeam : 5
+//       }
+//     }
+//     ws.send(JSON.stringify(msg));
+//   };
+//   ws.onmessage = (event) => {
+//     let data=JSON.parse(event.data);
+//     if(data.type == "createdRoom") {
+//       roomId = data.options.roomId;
+//       let msg: {type : string ; id : string} = {
+//         type : "changeRoomPublicStatus",
+//         id : roomId
+//       }
+//       ws.send(JSON.stringify(msg));
+//     }
+//     else if(data.type == "changedRoomPublicStatus") {
+//       let msg: {type : string ; id : string} = {
+//         type : "deleteRoom",
+//         id : roomId
+//       }
+//       ws.send(JSON.stringify(msg));
+//     }
+//     else if(data.type == "deletedRoom") {
+//       console.log("COMPLETED!");
+//       ws.close();
+//     }
+//     else
+//       console.log("???");
+//   }
+//   ws.onclose = () => {
+//     console.log('Connection closed');
+//   };
+// };
 </script>
 
 <style scoped>

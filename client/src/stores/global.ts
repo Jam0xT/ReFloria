@@ -9,6 +9,18 @@ export const global = defineStore('global', {
 
         show_welcome: null as unknown as Function,
         hide_welcome: null as unknown as Function,
+
+        show_start: null as unknown as Function,
+        hide_start: null as unknown as Function,
+
+        show_createRoom: null as unknown as Function,
+        hide_createRoom: null as unknown as Function,
+
+        show_joinRoom: null as unknown as Function,
+        hide_joinRoom: null as unknown as Function,
+
+        show_room: null as unknown as Function,
+        hide_room: null as unknown as Function,
     }),
     actions: {
         first_welcome() {
