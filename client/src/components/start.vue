@@ -1,10 +1,10 @@
 <template>
   <div class="start _fullscreen" v-show="start.visible.value">
     <div class="menu">
-      <div class="menu_item create" @click="start.showCreateRoom">
+      <div class="menu_item create" @click="store.start_to_create_room()">
         <p class="_font_4">Create Room</p>
       </div>
-      <div class="menu_item join" @click="start.showJoinRoom">
+      <div class="menu_item join" @click="store.start_to_join_room()">
         <p class="_font_4">Join Room</p>
       </div>
     </div>
@@ -82,20 +82,6 @@ const start = {
           }
         });
   },
-
-  // 显示创建房间界面
-  showCreateRoom() {
-    this.hide(null, () => {
-      store.show_createRoom();
-    });
-  },
-
-  // 显示加入房间界面
-  showJoinRoom() {
-    this.hide(null, () => {
-      store.show_joinRoom();
-    });
-  }
 };
 
 //挂载时获取服务器列表

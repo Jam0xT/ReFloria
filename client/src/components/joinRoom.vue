@@ -1,6 +1,6 @@
 <template>
   <div class="joinRoom _fullscreen" v-show="joinRoom.visible.value">
-    <div class="back_button" @click="joinRoom.backToStart">
+    <div class="back_button" @click="store.join_room_to_start">
       <svg viewBox="0 0 24 24">
         <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
       </svg>
@@ -87,13 +87,6 @@ const joinRoom = {
             if (next) next();
           }
         });
-  },
-
-  // 返回开始界面
-  backToStart() {
-    this.hide(null, () => {
-      store.show_start();
-    });
   },
 
   // 加入房间逻辑（留给你实现）

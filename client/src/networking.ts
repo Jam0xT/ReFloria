@@ -1,7 +1,7 @@
-import {roomOptions} from '../types/type'
+import {roomOptions} from '../../types/type'
 import * as player from './playerData'
 const ws = new WebSocket('ws://localhost:9001/ws');
-import { global } from './src/stores/global';
+import { global } from './stores/global';
 let store : any;
 ws.onopen = () => {
     console.log('Connected to WebSocket server');
