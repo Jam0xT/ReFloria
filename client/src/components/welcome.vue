@@ -24,7 +24,7 @@
             <p class="text_re _font_7">RE</p>
             <p class="text_floria _font_6">Floria</p>
         </div>
-        <div class="welcome_nav_play" @click="welcome.startGame">
+        <div class="welcome_nav_play" @click="store.welcome_to_start">
             <svg viewBox="0 0 300 300" class="button_play" >
                 <polygon points="60,60 60,240 215.88,150"/>
             </svg>
@@ -92,12 +92,6 @@ const welcome = {
           }
       );
     },
-    startGame() :void {
-      console.log("Starting game...")
-      this.hide(null, () => {
-        store.show_start();
-      });
-    }
 };
 store.show_welcome = welcome.show.bind(welcome);
 store.hide_welcome = welcome.hide.bind(welcome);

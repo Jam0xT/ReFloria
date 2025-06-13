@@ -7,7 +7,7 @@
         </svg>
       </div>
       <div class="room_info">
-        <p class="_font_3">Room: {{ Room.id ?? ""}}</p>
+        <p class="_font_3">Room: {{ Room?.id ?? ""}}</p>
         <p class="_font_2">Players: {{ players.length }}/{{ maxPlayers }}</p>
       </div>
     </div>
@@ -36,9 +36,9 @@
 <script setup lang="ts">
 import { global } from '../stores/global.ts';
 import { onMounted, ref } from 'vue';
-import * as player from '../../playerData'
+import * as player from '../playerData'
 import gsap from 'gsap';
-import * as net from '../../networking';
+import * as net from '../networking';
 
 const store = global();
 
