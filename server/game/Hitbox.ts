@@ -5,8 +5,11 @@ import { Vec2 } from './Math';
 import { IObserver, ObserverEventType, IObserverEventArgs } from "./Observer";
 
 class Hitbox {
+    constructor() {
+    }
     private _position: Vec2;
     private _observers: IObserver[];
+    public addObserver(observer: IObserver): void {};
 }
 
 export default Hitbox;
