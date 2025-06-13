@@ -122,7 +122,6 @@ const createRoom = {
     });
   },
 
-  // 创建房间逻辑（留给你实现）
   createRoom() {
     console.log('创建房间:', {
       serverArea :serverArea.value,
@@ -131,18 +130,12 @@ const createRoom = {
       publicStatus :publicStatus.value,
     });
     //创建房间
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
+
   }
 };
 
 onMounted(() => {
-  createRoom.init();
+  createRoom.init();as
 });
 
 store.show_createRoom = createRoom.show.bind(createRoom);

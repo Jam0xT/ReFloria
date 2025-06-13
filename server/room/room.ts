@@ -1,10 +1,5 @@
 import { v4 as getuid } from 'uuid';
-export interface RoomOptions {
-    isPublic?: boolean;
-    area : string;
-    totalPlayer : number;
-    playerPerTeam : number;
-}
+import {RoomOptions} from '/../types/type'
 class Room
 {
     isPublic : boolean;//是否公开

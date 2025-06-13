@@ -106,55 +106,53 @@ onMounted(() => {
     welcome.init();
 });
 
-// const serverUrl = 'ws://localhost:9001';
-// const message = 'Hello';
-//
-// const sendMessage = () => {
-//   // // 使用 uWebSockets.js 连接 WebSocket
-//   const ws = new WebSocket('ws://localhost:9001/ws');
-//   let roomId : string;
-//   ws.onopen = () => {
-//     console.log('Connected to WebSocket server');
-//     let msg: {type : string; options:
-//           {isPublic : boolean; area : string; totalPlaye : number; playerPerTeam : number}} = {
-//       type :  "createRoom",
-//       options:  {
-//         isPublic :  true,
-//         area :  "area1",
-//         totalPlayer :  10,
-//         playerPerTeam : 5
-//       }
-//     }
-//     ws.send(JSON.stringify(msg));
-//   };
-//   ws.onmessage = (event) => {
-//     let data=JSON.parse(event.data);
-//     if(data.type == "createdRoom") {
-//       roomId = data.options.roomId;
-//       let msg: {type : string ; id : string} = {
-//         type : "changeRoomPublicStatus",
-//         id : roomId
-//       }
-//       ws.send(JSON.stringify(msg));
-//     }
-//     else if(data.type == "changedRoomPublicStatus") {
-//       let msg: {type : string ; id : string} = {
-//         type : "deleteRoom",
-//         id : roomId
-//       }
-//       ws.send(JSON.stringify(msg));
-//     }
-//     else if(data.type == "deletedRoom") {
-//       console.log("COMPLETED!");
-//       ws.close();
-//     }
-//     else
-//       console.log("???");
-//   }
-//   ws.onclose = () => {
-//     console.log('Connection closed');
-//   };
-// };
+
+const sendMessage = () => {
+  // // 使用 uWebSockets.js 连接 WebSocket
+  const ws = new WebSocket('ws://localhost:9001/ws');
+  let roomId : string;
+  ws.onopen = () => {
+    console.log('Connected to WebSocket server');
+    let msg: {type : string; options:
+          {isPublic : boolean; area : string; totalPlayer : number; playerPerTeam : number}} = {
+      type :  "createRoom",
+      options:  {
+        isPublic :  true,
+        area :  "area1",
+        totalPlayer :  10,
+        playerPerTeam : 5
+      }
+    }
+    ws.send(JSON.stringify(msg));
+  };
+  ws.onmessage = (event) => {
+    let data=JSON.parse(event.data);
+    if(data.type == "createdRoom") {
+      roomId = data.options.roomId;
+      let msg: {type : string ; id : string} = {
+        type : "changeRoomPublicStatus",
+        id : roomId
+      }
+      ws.send(JSON.stringify(msg));
+    }
+    else if(data.type == "changedRoomPublicStatus") {
+      let msg: {type : string ; id : string} = {
+        type : "deleteRoom",
+        id : roomId
+      }
+      ws.send(JSON.stringify(msg));
+    }
+    else if(data.type == "deletedRoom") {
+      console.log("COMPLETED!");
+      ws.close();
+    }
+    else
+      console.log("???");
+  }
+  ws.onclose = () => {
+    console.log('Connection closed');
+  };
+};
 </script>
 
 <style scoped>
