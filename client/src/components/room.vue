@@ -1,24 +1,14 @@
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
-<!--THIS MODULE IS NOT BEEN USED YET-->
 <template>
   <div class="room _fullscreen" v-show="room.visible.value">
     <div class="header">
-      <div class="back_button" @click="leaveRoom">
+      <div class="back_button" @click="room.leaveRoom">
         <svg viewBox="0 0 24 24">
           <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
         </svg>
       </div>
       <div class="room_info">
-        <p class="_font_3">房间: {{ roomId }}</p>
-        <p class="_font_2">玩家: {{ players.length }}/{{ maxPlayers }}</p>
+        <p class="_font_3">Room: {{ Room.id ?? ""}}</p>
+        <p class="_font_2">Players: {{ players.length }}/{{ maxPlayers }}</p>
       </div>
     </div>
 
@@ -27,17 +17,17 @@
         <div class="player_avatar"></div>
         <p class="_font_2">{{ player.name }}</p>
         <div class="player_status" :class="{ ready: player.ready }">
-          {{ player.ready ? '准备' : '等待' }}
+          {{ player.ready ? 'Ready' : 'Waiting' }}
         </div>
       </div>
     </div>
 
     <div class="controls">
-      <div class="ready_button" @click="toggleReady">
+      <div class="ready_button" @click="room.toggleReady">
         <p class="_font_3">{{ isReady ? '取消准备' : '准备' }}</p>
       </div>
-      <div class="start_button" v-if="isHost" @click="startGame">
-        <p class="_font_3">开始游戏</p>
+      <div class="start_button" v-if="isHost" @click="room.startGame">
+        <p class="_font_3">Start</p>
       </div>
     </div>
   </div>
@@ -46,12 +36,14 @@
 <script setup lang="ts">
 import { global } from '../stores/global.ts';
 import { onMounted, ref } from 'vue';
+import * as player from '../../playerData'
 import gsap from 'gsap';
+import * as net from '../../networking';
 
 const store = global();
 
 // 模拟数据 - 实际应从服务器获取
-const roomId = ref('ABC123');
+const Room = ref<T>();
 const maxPlayers = ref(4);
 const isHost = ref(true);
 const isReady = ref(false);
@@ -64,50 +56,50 @@ const room = {
   container: null as null | HTMLElement,
   animator: null as unknown as gsap.core.Timeline,
   visible: ref(false),
-
+  header : null as null | HTMLElement,
+  player_item : null as null | HTMLElement,
+  controls : null as null | HTMLElement,
   init() {
     this.container = document.querySelector('.room');
+    this.header = document.querySelector('.header');
+    this.player_item = document.querySelector('.player_item');
+    this.controls = document.querySelector('.controls');
+    console.log("*");
+    console.log(this.header);
   },
 
-  show(immediate?: Function, next?: Function) {
-    if (this.animator?.isActive()) return;
-
+  show() {
+    // if (this.animator?.isActive()) return;
+    Room.value = player.getRoom();
     this.visible.value = true;
-
-    if (immediate) immediate();
-
+    console.log("-");
+    console.log(this.header);
     this.animator = gsap.timeline()
-        .from('.header', {
-          y: -50,
+        .to(this.header, {
           opacity: 100,
           duration: 0.5,
           ease: 'power3.out'
         })
-        .from('.player_item', {
-          x: -50,
+        .to(this.player_item, {
           opacity: 100,
           stagger: 0.1,
           duration: 0.6,
           ease: 'power3.out'
         })
-        .from('.controls', {
-          y: 50,
+        .to(this.controls, {
           opacity: 100,
           duration: 0.5,
           ease: 'power3.out',
-          onComplete: () => {
-            if (next) next();
-          }
         });
   },
 
   hide(immediate?: Function, next?: Function) {
-    if (this.animator?.isActive()) return;
+    // if (this.animator?.isActive()) return;
 
     if (immediate) immediate();
 
     this.animator = gsap.timeline()
-        .to(['.header', '.player_item', '.controls'], {
+        .to([this.header, this.player_item, this.controls], {
           opacity: 0,
           duration: 0.3,
           ease: 'power3.in'
@@ -125,12 +117,8 @@ const room = {
 
   // 离开房间
   leaveRoom() {
-    // 这里应该调用API离开房间
-    console.log('离开房间');
-
-    this.hide(null, () => {
-      store.show_start();
-    });
+    console.log("Leave room");
+    net.leaveRoom(Room.value.id);
   },
 
   // 切换准备状态

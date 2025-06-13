@@ -33,15 +33,29 @@ app.ws('/ws', {
             console.log("This message has no type!");
         else if(msg.type == "createRoom")
         {
-            let roomId: string = room.createRoom(msg.options);
-            let myMsg : {type : string, options : {roomId : string}}={
+            let Room = room.createRoom(msg.options,(ws as any).id);
+            let myMsg : {type : string, options : {room : any}}={
                 type : "createdRoom",
                 options : {
-                    roomId : roomId
+                    room : Room
                 }
             }
             ws.send(JSON.stringify(myMsg));
-            console.log(`User ${(ws as any).id} created room : ${roomId}`);
+            console.log(`User ${(ws as any).id} created room : ${Room.id}`);
+        }
+        else if(msg.type == "leaveRoom")
+        {
+            let isSuccess : boolean = room.leaveRoom(msg.id,(ws as any).id);
+            if(isSuccess){
+                let myMsg : {type : string, options : {}}={
+                    type : "leftRoom",
+                    options : {}
+                }
+                ws.send(JSON.stringify(myMsg));
+                console.log(`User ${(ws as any).id} has left room : ${msg.id}`);
+            }
+            else
+                console.log(`User ${(ws as any).id} failed to leave room : ${msg.id}`);
         }
         else if(msg.type == "deleteRoom")
         {

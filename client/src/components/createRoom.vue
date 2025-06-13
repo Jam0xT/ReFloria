@@ -49,6 +49,7 @@
 import { global } from '../stores/global.ts';
 import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
+import * as net from '../../networking';
 
 const store = global();
 
@@ -129,13 +130,15 @@ const createRoom = {
       teamNumber :teamNumber.value,
       publicStatus :publicStatus.value,
     });
-    //创建房间
-
+    let roomOptions = {isPublic:(publicStatus.value=="Public") , area:serverArea.value ,
+      playerPerTeam:Number(playersPerTeam.value) , totalPlayer:Number(playersPerTeam.value)*Number(teamNumber.value)};
+    console.log(roomOptions);
+    net.createRoom(roomOptions);
   }
 };
 
 onMounted(() => {
-  createRoom.init();as
+  createRoom.init();
 });
 
 store.show_createRoom = createRoom.show.bind(createRoom);
