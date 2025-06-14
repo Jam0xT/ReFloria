@@ -11,10 +11,6 @@
         <p class="_font_3">Room Id</p>
         <input type="text" v-model="roomId" placeholder="">
       </div>
-      <div class="form_item">
-        <p class="_font_3">Player Name</p>
-        <input type="text" v-model="playerName" placeholder="">
-      </div>
       <div class="submit_button" @click="joinRoom.joinRoom">
         <p class="_font_3">Join</p>
       </div>
@@ -26,11 +22,11 @@
 import { global } from '../stores/global.ts';
 import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
+import * as net from '../networking';
 
 const store = global();
 
 const roomId = ref('');
-const playerName = ref('');
 
 const joinRoom = {
   container: null as null | HTMLElement,
@@ -52,13 +48,13 @@ const joinRoom = {
 
     this.animator = gsap.timeline()
         .to(this.backButton, {
-          opacity: 100,
+          opacity: 1,
           duration: 0.5,
           ease: 'power3.out'
         })
         .to(this.formItems, {
           y: 50,
-          opacity: 100,
+          opacity: 1,
           stagger: 0.1,
           duration: 0.6,
           ease: 'power3.out',
@@ -90,20 +86,11 @@ const joinRoom = {
   },
 
   // 加入房间逻辑（留给你实现）
-  joinRoom() {
+    joinRoom() {
     console.log('加入房间:', {
       roomId: roomId.value,
-      playerName: playerName.value
     });
-    //加入房间
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-    //目前还没写
-
+    net.joinRoom(roomId.value);
   }
 };
 

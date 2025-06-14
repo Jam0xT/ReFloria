@@ -57,7 +57,7 @@ const start = {
     this.visible.value = true;
     this.animator = gsap.timeline()
         .to(this.menuItems, {
-          opacity: 100,
+          opacity: 1,
           stagger: 0.2,
           duration: 0.8,
           ease: 'power3.out',

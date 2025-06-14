@@ -16,11 +16,22 @@ ws.onmessage = (event) => {
             store.show_room();
         });
     }
+    else if(data.type == "joinedRoom") {
+        player.setRoom(data.options.room);
+        store.hide_joinRoom(null,() => {
+            store.show_room();
+        });
+    }
     else if(data.type == "leftRoom") {
         player.setRoom(null);
         store.hide_room(null, () => {
             store.show_start();
         });
+    }
+    else if(data.type == "updateRoomStatus") {
+        let room = data.options.room;
+        player.setRoom(room);
+        store.update_room();
     }
     else if(data.type == "changedRoomPublicStatus") {
         // let msg: {type : string ; id : string} = {
@@ -43,6 +54,13 @@ export function createRoom(roomOptions :roomOptions) :void {
     let msg : {type:string,options:roomOptions} = {
         type : "createRoom",
         options : roomOptions,
+    }
+    ws.send(JSON.stringify(msg));
+}
+export function joinRoom(roomId : string) :void  {
+    let msg: {type:string,id:string} = {
+        type : "joinRoom",
+        id : roomId
     }
     ws.send(JSON.stringify(msg));
 }

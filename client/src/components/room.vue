@@ -7,8 +7,8 @@
         </svg>
       </div>
       <div class="room_info">
-        <p class="_font_3">Room: {{ Room?.id ?? ""}}</p>
-        <p class="_font_2">Players: {{ players.length }}/{{ maxPlayers }}</p>
+        <p class="_font_3">Room: {{ Room?. id ?? ""}}</p>
+        <p class="_font_2">Players: {{ nowPlayers }}/{{ maxPlayers }}</p>
       </div>
     </div>
 
@@ -24,7 +24,7 @@
 
     <div class="controls">
       <div class="ready_button" @click="room.toggleReady">
-        <p class="_font_3">{{ isReady ? '取消准备' : '准备' }}</p>
+        <p class="_font_3">{{ isReady ? 'Not ready' : 'Ready' }}</p>
       </div>
       <div class="start_button" v-if="isHost" @click="room.startGame">
         <p class="_font_3">Start</p>
@@ -44,11 +44,12 @@ const store = global();
 
 // 模拟数据 - 实际应从服务器获取
 const Room = ref<T>();
+const nowPlayers = ref(2);
 const maxPlayers = ref(4);
 const isHost = ref(true);
 const isReady = ref(false);
 const players = ref([
-  { name: '玩家1', ready: true },
+  { name: 'Player 1', ready: true },
   { name: '玩家2', ready: false }
 ]);
 
@@ -64,30 +65,34 @@ const room = {
     this.header = document.querySelector('.header');
     this.player_item = document.querySelector('.player_item');
     this.controls = document.querySelector('.controls');
-    console.log("*");
-    console.log(this.header);
   },
-
+  update()
+  {
+    console.log("update room");
+    Room.value = player.getRoom();
+    nowPlayers.value=Object.keys(Room.value.players).length;
+    maxPlayers.value=Room.value.totalPlayer;
+    console.log(nowPlayers.value);
+  },
   show() {
     // if (this.animator?.isActive()) return;
-    Room.value = player.getRoom();
+    console.log("show room");
+    this.update();
     this.visible.value = true;
-    console.log("-");
-    console.log(this.header);
     this.animator = gsap.timeline()
         .to(this.header, {
-          opacity: 100,
+          opacity: 1,
           duration: 0.5,
           ease: 'power3.out'
         })
         .to(this.player_item, {
-          opacity: 100,
+          opacity: 1,
           stagger: 0.1,
           duration: 0.6,
           ease: 'power3.out'
         })
         .to(this.controls, {
-          opacity: 100,
+          opacity: 1,
           duration: 0.5,
           ease: 'power3.out',
         });
@@ -102,13 +107,9 @@ const room = {
         .to([this.header, this.player_item, this.controls], {
           opacity: 0,
           duration: 0.3,
-          ease: 'power3.in'
-        })
-        .to(this.container, {
-          opacity: 0,
-          duration: 0.2,
           ease: 'power3.in',
           onComplete: () => {
+            console.log(next);
             this.visible.value = false;
             if (next) next();
           }
@@ -146,6 +147,7 @@ onMounted(() => {
 
 store.show_room = room.show.bind(room);
 store.hide_room = room.hide.bind(room);
+store.update_room = room.update.bind(room);
 </script>
 
 <style scoped>

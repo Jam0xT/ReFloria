@@ -78,13 +78,13 @@ const createRoom = {
         this.visible.value = true;
         this.animator = gsap.timeline()
             .to(this.backButton, {
-                opacity: 100,
+                opacity: 1,
                 duration: 0.5,
                 ease: 'power3.out'
             })
             .to(this.formItems, {
                 y: 50,
-                opacity: 100,
+                opacity: 1,
                 stagger: 0.1,
                 duration: 0.6,
                 ease: 'power3.out'

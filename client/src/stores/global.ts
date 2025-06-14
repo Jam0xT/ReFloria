@@ -20,6 +20,7 @@ export const global = defineStore('global', {
         hide_joinRoom: null as unknown as Function,
 
         show_room: null as unknown as Function,
+        update_room: null as unknown as Function,
         hide_room: null as unknown as Function,
     }),
     actions: {

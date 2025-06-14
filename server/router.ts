@@ -41,17 +41,61 @@ app.ws('/ws', {
                 }
             }
             ws.send(JSON.stringify(myMsg));
+            (ws as any).roomId = Room.id;
             console.log(`User ${(ws as any).id} created room : ${Room.id}`);
+        }
+        else if(msg.type == "joinRoom")
+        {
+            let Room = room.joinRoom(msg.id,(ws as any).id);
+            if(Room != null){
+                let myMsg : {type : string, options : {room :any}}={
+                    type : "joinedRoom",
+                    options : {
+                        room : Room
+                    }
+                }
+                ws.send(JSON.stringify(myMsg));
+                (ws as any).roomId = Room.id;
+                for(let player in Room.players)
+                {
+                    if(Room.players[player].id == (ws as any).id)
+                        continue;
+                    let playerWs = playerList[Room.players[player].id];
+                    let myMsg : {type : string, options : {room :any}}={
+                        type : "updateRoomStatus",
+                        options : {
+                            room : Room
+                        }
+                    }
+                    playerWs.send(JSON.stringify(myMsg));
+                }
+                console.log(`User ${(ws as any).id} has joined room : ${msg.id}`);
+            }
+            else
+                console.log(`User ${(ws as any).id} failed to join room : ${msg.id}`);
         }
         else if(msg.type == "leaveRoom")
         {
-            let isSuccess : boolean = room.leaveRoom(msg.id,(ws as any).id);
-            if(isSuccess){
+            let Room = room.leaveRoom(msg.id,(ws as any).id);
+            if(Room != null){
                 let myMsg : {type : string, options : {}}={
                     type : "leftRoom",
                     options : {}
                 }
                 ws.send(JSON.stringify(myMsg));
+                delete (ws as any).roomId;
+                if(typeof Room != "boolean")
+                    for(let player in Room.players)
+                    {
+                        let playerWs = playerList[Room.players[player].id];
+                        let myMsg : {type : string, options : {room :any}}={
+                            type : "updateRoomStatus",
+                            options : {
+                                room : Room
+                            }
+                        }
+                        playerWs.send(JSON.stringify(myMsg));
+                    }
                 console.log(`User ${(ws as any).id} has left room : ${msg.id}`);
             }
             else
@@ -66,6 +110,7 @@ app.ws('/ws', {
                     options : {}
                 }
                 ws.send(JSON.stringify(myMsg));
+                delete (ws as any).roomId;
                 console.log(`User ${(ws as any).id} deleted room : ${msg.id}`);
             }
             else
@@ -95,7 +140,24 @@ app.ws('/ws', {
 
     // 当 WebSocket 连接关闭时触发
     close: (ws, code : number, message : ArrayBuffer) :void => {
-
+        if((ws as any).roomId != undefined)
+        {
+            let Room = room.leaveRoom((ws as any).roomId,(ws as any).id);
+            if(typeof Room != "boolean")
+                for(let player in Room.players)
+                {
+                    let playerWs = playerList[Room.players[player].id];
+                    let myMsg : {type : string, options : {room :any}}={
+                        type : "updateRoomStatus",
+                        options : {
+                            room : Room
+                        }
+                    }
+                    playerWs.send(JSON.stringify(myMsg));
+                }
+            console.log(`User ${(ws as any).id} has left room : ${(ws as any).roomId}`);
+            delete (ws as any).roomId;
+        }
         console.log(`WebSocket connection with ${(ws as any).id} closed`);
     }
 });
