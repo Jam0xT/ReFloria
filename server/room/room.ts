@@ -1,4 +1,3 @@
-import { v4 as getuid } from 'uuid';
 import {roomOptions,playerInRoom} from '../../types/type'
 class Room
 {
