@@ -1,7 +1,7 @@
-export interface GameOptions {
+interface GameOptions {
 
 }
 
-export class Game {
+class Game {
 
 }
