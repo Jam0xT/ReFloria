@@ -18,9 +18,11 @@ app.ws('/ws', {
         playerList[uid]=ws;
         (ws as any).id=uid;
         console.log(`A new WebSocket connection has been established with ${uid}!`);
-
-        // 向客户端发送一条欢迎消息
-        ws.send(JSON.stringify('Welcome to the WebSocket server!'));
+        let msg : {type : string, options : {id : string}}={
+            type : "setId",
+            options: {id : uid}
+        }
+        ws.send(JSON.stringify(msg));
     },
 
     // 当 WebSocket 接收到消息时触发
@@ -56,19 +58,7 @@ app.ws('/ws', {
                 }
                 ws.send(JSON.stringify(myMsg));
                 (ws as any).roomId = Room.id;
-                for(let player in Room.players)
-                {
-                    if(Room.players[player].id == (ws as any).id)
-                        continue;
-                    let playerWs = playerList[Room.players[player].id];
-                    let myMsg : {type : string, options : {room :any}}={
-                        type : "updateRoomStatus",
-                        options : {
-                            room : Room
-                        }
-                    }
-                    playerWs.send(JSON.stringify(myMsg));
-                }
+                update(Room,(ws as any).id);
                 console.log(`User ${(ws as any).id} has joined room : ${msg.id}`);
             }
             else
@@ -85,37 +75,37 @@ app.ws('/ws', {
                 ws.send(JSON.stringify(myMsg));
                 delete (ws as any).roomId;
                 if(typeof Room != "boolean")
-                    for(let player in Room.players)
-                    {
-                        let playerWs = playerList[Room.players[player].id];
-                        let myMsg : {type : string, options : {room :any}}={
-                            type : "updateRoomStatus",
-                            options : {
-                                room : Room
-                            }
-                        }
-                        playerWs.send(JSON.stringify(myMsg));
-                    }
+                    update(Room);
                 console.log(`User ${(ws as any).id} has left room : ${msg.id}`);
             }
             else
                 console.log(`User ${(ws as any).id} failed to leave room : ${msg.id}`);
         }
-        else if(msg.type == "deleteRoom")
+        else if(msg.type == "changeReadyStatus")
         {
-            let isSuccess: boolean = room.deleteRoom(msg.id);
-            if(isSuccess){
-                let myMsg : {type : string, options : {}}={
-                    type : "deletedRoom",
-                    options : {}
-                }
-                ws.send(JSON.stringify(myMsg));
-                delete (ws as any).roomId;
-                console.log(`User ${(ws as any).id} deleted room : ${msg.id}`);
+            let Room =room.changeReadyStatus(msg.id,(ws as any).id);
+            if(Room != null){
+                update(Room);
+                console.log(`User ${(ws as any).id} changed his ready status in room: ${msg.id}`);
             }
             else
-                console.log(`User ${(ws as any).id} failed to delete room : ${msg.id}`);
+                console.log(`User ${(ws as any).id} failed to change his ready status in room: ${msg.id}`);
         }
+        // else if(msg.type == "deleteRoom")
+        // {
+        //     let isSuccess: boolean = room.deleteRoom(msg.id);
+        //     if(isSuccess){
+        //         let myMsg : {type : string, options : {}}={
+        //             type : "deletedRoom",
+        //             options : {}
+        //         }
+        //         ws.send(JSON.stringify(myMsg));
+        //         delete (ws as any).roomId;
+        //         console.log(`User ${(ws as any).id} deleted room : ${msg.id}`);
+        //     }
+        //     else
+        //         console.log(`User ${(ws as any).id} failed to delete room : ${msg.id}`);
+        // }
         else if(msg.type == "changeRoomPublicStatus")
         {
             let status: number = room.changeRoomPublicStatus(msg.id);
@@ -144,17 +134,7 @@ app.ws('/ws', {
         {
             let Room = room.leaveRoom((ws as any).roomId,(ws as any).id);
             if(typeof Room != "boolean")
-                for(let player in Room.players)
-                {
-                    let playerWs = playerList[Room.players[player].id];
-                    let myMsg : {type : string, options : {room :any}}={
-                        type : "updateRoomStatus",
-                        options : {
-                            room : Room
-                        }
-                    }
-                    playerWs.send(JSON.stringify(myMsg));
-                }
+                update(Room);
             console.log(`User ${(ws as any).id} has left room : ${(ws as any).roomId}`);
             delete (ws as any).roomId;
         }
@@ -169,3 +149,18 @@ app.listen(port, (token :false|us_listen_socket) : void => {
         console.log('Failed to start server');
     }
 });
+function update(Room : any,expectUser? : string) : void {
+    for(let player in Room.players)
+    {
+        if(Room.players[player].id == expectUser)
+            continue;
+        let playerWs = playerList[Room.players[player].id];
+        let myMsg : {type : string, options : {room :any}}={
+            type : "updateRoomStatus",
+            options : {
+                room : Room
+            }
+        }
+        playerWs.send(JSON.stringify(myMsg));
+    }
+}

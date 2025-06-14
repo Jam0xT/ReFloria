@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { global } from '../stores/global.ts';
 import { onMounted, ref } from 'vue';
-import * as player from '../playerData'
+import * as player from '../playerData';
 import gsap from 'gsap';
 import * as net from '../networking';
 
@@ -50,7 +50,7 @@ const isHost = ref(true);
 const isReady = ref(false);
 const players = ref([
   { name: 'Player 1', ready: true },
-  { name: '玩家2', ready: false }
+  { name: 'Player 2', ready: false }
 ]);
 
 const room = {
@@ -72,6 +72,12 @@ const room = {
     Room.value = player.getRoom();
     nowPlayers.value=Object.keys(Room.value.players).length;
     maxPlayers.value=Room.value.totalPlayer;
+    isReady.value=Room.value.players[player.getId()].isReady;
+    players.value=[];
+    for(let player in Room.value.players)
+    {
+      players.value.push({name : player,ready: Room.value.players[player].isReady});
+    }
     console.log(nowPlayers.value);
   },
   show() {
@@ -124,9 +130,7 @@ const room = {
 
   // 切换准备状态
   toggleReady() {
-    isReady.value = !isReady.value;
-    // 这里应该调用API更新准备状态
-    console.log('准备状态:', isReady.value ? '准备' : '取消准备');
+    net.changeReadyStatus(Room.value.id);
   },
 
   // 开始游戏

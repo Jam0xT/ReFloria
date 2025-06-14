@@ -9,6 +9,9 @@ ws.onopen = () => {
 }
 ws.onmessage = (event) => {
     let data=JSON.parse(event.data);
+    if(data.type == "setId") {
+        player.setId(data.options.id);
+    }
     if(data.type == "createdRoom") {
         let room = data.options.room;
         player.setRoom(room);
@@ -69,6 +72,12 @@ export function leaveRoom(roomId : string) : void {
         type : "leaveRoom",
         id : roomId
     }
-    console.log(msg);
+    ws.send(JSON.stringify(msg));
+}
+export function changeReadyStatus(roomId : string) : void {
+    let msg : {type:string,id:string} = {
+        type : "changeReadyStatus",
+        id : roomId
+    }
     ws.send(JSON.stringify(msg));
 }

@@ -54,7 +54,7 @@ export function joinRoom(id : string,joiner : string) : Room | null
     nowRoom.players[joiner] = {id : joiner,name : joiner,isReady :false};
     return nowRoom;
 }
-export function leaveRoom(id : string,leaver : string) : any
+export function leaveRoom(id : string,leaver : string) : Room | boolean
 {
     if(roomList[id]==undefined)
         return false;
@@ -67,6 +67,16 @@ export function leaveRoom(id : string,leaver : string) : any
         delete roomList[id];
         return true;
     }
+    return nowRoom;
+}
+export function changeReadyStatus(id : string,changer : string) : Room | null
+{
+    if(roomList[id]==undefined)
+        return null;
+    let nowRoom : Room = roomList[id];
+    if(!(changer in nowRoom.players))
+        return null;
+    nowRoom.players[changer].isReady = !nowRoom.players[changer].isReady;
     return nowRoom;
 }
 export function deleteRoom(id : string) : boolean
