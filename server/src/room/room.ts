@@ -31,13 +31,23 @@ export class Room
     {
         return this._playerPerTeam;
     }
+    data ()
+    {
+        return {
+            isPublic : this._isPublic,
+            totalPlayer : this._totalPlayer,
+            nowPlayer : Object.keys(this.players).length,
+            id : this._id,
+            players : this._players,
+        };
+    }
     constructor(options: roomOptions)
     {
         this._area = options.area;
         this._totalPlayer = options.totalPlayer;
         this._playerPerTeam = options.playerPerTeam;
         this._isPublic = options.isPublic ?? true;
-        this._id =Room.makeRoomId();
+        this._id =Room.makeId();
         this._players = {};
     }
     static roomList :Record<string, Room> = {};
@@ -46,7 +56,7 @@ export class Room
         let a : number = Math.floor(Math.random()*36);
         return a.toString(36);
     }
-    static makeRoomId() : string
+    static makeId() : string
     {
         let id : string = "";
         for(let i = 1;i <= 6;i++)
@@ -59,14 +69,14 @@ export class Room
         }
         return id;
     }
-    static createRoom(options: roomOptions,creator : string) : Room
+    static create(options: roomOptions,creator : string) : Room
     {
         let nowRoom: Room = new Room(options);
         nowRoom._players[creator] = {id : creator,name : creator,isReady :false};
         Room.roomList[nowRoom.id] = nowRoom;
         return nowRoom;
     }
-    static joinRoom(id : string,joiner : string) : Room | null
+    static join(id : string,joiner : string) : Room | null
     {
         if(Room.roomList[id] == undefined)
             return null;
@@ -76,7 +86,7 @@ export class Room
         nowRoom._players[joiner] = {id : joiner,name : joiner,isReady :false};
         return nowRoom;
     }
-    static leaveRoom(id : string,leaver : string) : Room | boolean
+    static leave(id : string,leaver : string) : Room | boolean
     {
         if(Room.roomList[id]==undefined)
             return false;
@@ -101,7 +111,7 @@ export class Room
         nowRoom._players[changer].isReady = !nowRoom._players[changer].isReady;
         return nowRoom;
     }
-    static deleteRoom(id : string) : boolean
+    static delete(id : string) : boolean
     {
         if(Room.roomList[id] != undefined)
         {
@@ -110,7 +120,7 @@ export class Room
         }
         return false;
     }
-    static changeRoomPublicStatus(id : string) : number
+    static changePublicStatus(id : string) : number
     {
         if(Room.roomList[id] != undefined)
         {
