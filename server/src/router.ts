@@ -1,7 +1,7 @@
 import * as uws from 'uWebSockets.js';
 import { v4 as getuid } from 'uuid';
 import {HttpRequest, HttpResponse, us_listen_socket} from "uWebSockets.js";
-import * as room from './room/room';
+import {Room} from './room/room';
 const port = 9001;
 
 // 创建 uWebSockets.js 服务器
@@ -35,30 +35,30 @@ app.ws('/ws', {
             console.log("This message has no type!");
         else if(msg.type == "createRoom")
         {
-            let Room = room.createRoom(msg.options,(ws as any).id);
+            let nowRoom = Room.createRoom(msg.options,(ws as any).id);
             let myMsg : {type : string, options : {room : any}}={
                 type : "createdRoom",
                 options : {
-                    room : Room
+                    room : nowRoom
                 }
             }
             ws.send(JSON.stringify(myMsg));
-            (ws as any).roomId = Room.id;
-            console.log(`User ${(ws as any).id} created room : ${Room.id}`);
+            (ws as any).roomId = nowRoom.id;
+            console.log(`User ${(ws as any).id} created room : ${nowRoom.id}`);
         }
         else if(msg.type == "joinRoom")
         {
-            let Room = room.joinRoom(msg.id,(ws as any).id);
-            if(Room != null){
+            let nowRoom = Room.joinRoom(msg.id,(ws as any).id);
+            if(nowRoom != null){
                 let myMsg : {type : string, options : {room :any}}={
                     type : "joinedRoom",
                     options : {
-                        room : Room
+                        room : nowRoom
                     }
                 }
                 ws.send(JSON.stringify(myMsg));
-                (ws as any).roomId = Room.id;
-                update(Room,(ws as any).id);
+                (ws as any).roomId = nowRoom.id;
+                update(nowRoom,(ws as any).id);
                 console.log(`User ${(ws as any).id} has joined room : ${msg.id}`);
             }
             else
@@ -66,16 +66,16 @@ app.ws('/ws', {
         }
         else if(msg.type == "leaveRoom")
         {
-            let Room = room.leaveRoom(msg.id,(ws as any).id);
-            if(Room != null){
+            let nowRoom = Room.leaveRoom(msg.id,(ws as any).id);
+            if(nowRoom != null){
                 let myMsg : {type : string, options : {}}={
                     type : "leftRoom",
                     options : {}
                 }
                 ws.send(JSON.stringify(myMsg));
                 delete (ws as any).roomId;
-                if(typeof Room != "boolean")
-                    update(Room);
+                if(typeof nowRoom != "boolean")
+                    update(nowRoom);
                 console.log(`User ${(ws as any).id} has left room : ${msg.id}`);
             }
             else
@@ -83,9 +83,9 @@ app.ws('/ws', {
         }
         else if(msg.type == "changeReadyStatus")
         {
-            let Room =room.changeReadyStatus(msg.id,(ws as any).id);
-            if(Room != null){
-                update(Room);
+            let nowRoom =Room.changeReadyStatus(msg.id,(ws as any).id);
+            if(nowRoom != null){
+                update(nowRoom);
                 console.log(`User ${(ws as any).id} changed his ready status in room: ${msg.id}`);
             }
             else
@@ -108,7 +108,7 @@ app.ws('/ws', {
         // }
         else if(msg.type == "changeRoomPublicStatus")
         {
-            let status: number = room.changeRoomPublicStatus(msg.id);
+            let status: number = Room.changeRoomPublicStatus(msg.id);
             if(status == 0 || status == 1)
             {
                 let myMsg : {type : string, options : {publicStatus : boolean}}={
@@ -132,9 +132,9 @@ app.ws('/ws', {
     close: (ws, code : number, message : ArrayBuffer) :void => {
         if((ws as any).roomId != undefined)
         {
-            let Room = room.leaveRoom((ws as any).roomId,(ws as any).id);
-            if(typeof Room != "boolean")
-                update(Room);
+            let nowRoom = Room.leaveRoom((ws as any).roomId,(ws as any).id);
+            if(typeof nowRoom != "boolean")
+                update(nowRoom);
             console.log(`User ${(ws as any).id} has left room : ${(ws as any).roomId}`);
             delete (ws as any).roomId;
         }
@@ -149,16 +149,16 @@ app.listen(port, (token :false|us_listen_socket) : void => {
         console.log('Failed to start server');
     }
 });
-function update(Room : any,expectUser? : string) : void {
-    for(let player in Room.players)
+function update(nowRoom : any,expectUser? : string) : void {
+    for(let player in nowRoom.players)
     {
-        if(Room.players[player].id == expectUser)
+        if(nowRoom.players[player].id == expectUser)
             continue;
-        let playerWs = playerList[Room.players[player].id];
+        let playerWs = playerList[nowRoom.players[player].id];
         let myMsg : {type : string, options : {room :any}}={
             type : "updateRoomStatus",
             options : {
-                room : Room
+                room : nowRoom
             }
         }
         playerWs.send(JSON.stringify(myMsg));

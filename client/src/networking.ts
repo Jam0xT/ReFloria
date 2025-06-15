@@ -1,4 +1,4 @@
-import {roomOptions} from '../../types/type'
+import {roomOptions} from './type'
 import * as player from './playerData'
 const ws = new WebSocket('ws://localhost:9001/ws');
 import { global } from './stores/global';

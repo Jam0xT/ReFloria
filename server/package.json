@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node router.ts",
+    "start": "ts-node src/router.ts",
     "build": "tsc",
     "serve": "node dist/server.js"
   },
