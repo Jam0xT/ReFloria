@@ -1,0 +1,7 @@
+interface GameOptions {
+
+}
+
+class Game {
+
+}
