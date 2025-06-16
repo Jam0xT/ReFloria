@@ -6,6 +6,7 @@
   <CreateRoom />
   <JoinRoom />
   <Room />
+  <Auth />
 </template>
 
 <script setup lang="ts">
@@ -16,6 +17,7 @@ import Start from './components/start.vue';
 import CreateRoom from './components/createRoom.vue';
 import JoinRoom from './components/joinRoom.vue';
 import Room from './components/room.vue';
+import Auth from './components/auth.vue';
 </script>
 
 <!-- 保持原有样式不变 -->

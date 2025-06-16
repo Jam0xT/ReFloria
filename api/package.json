@@ -3,17 +3,16 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node server.ts",
-    "build": "tsc",
-    "serve": "node dist/server.js"
+    "dev": "tsc -p tsconfig.json && node dist/router.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0"
+    "node-rsa": "^1.1.1",
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
+    "uWebsockets.js": "github:uNetworking/uWebsockets.js"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
