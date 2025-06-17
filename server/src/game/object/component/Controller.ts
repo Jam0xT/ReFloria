@@ -1,5 +1,5 @@
-interface IController {
+interface Controller {
 
 }
 
-export default IController;
+export default Controller;

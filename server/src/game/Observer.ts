@@ -1,8 +1,8 @@
-interface IObserver {
+interface Observer {
     isAbandoned: boolean;
     onNotify<T extends ObserverEventType>(
         eventType: T,
-        args: IObserverEventArgs[T],
+        args: ObserverEventArgs[T],
     ): void;
 }
 
@@ -10,7 +10,7 @@ type ObserverEventType =
     'EVENT_A' |
     'EVENT_B';
 
-interface IObserverEventArgs {
+interface ObserverEventArgs {
     EVENT_A: {
         id: number;
     };
@@ -20,7 +20,7 @@ interface IObserverEventArgs {
 }
 
 export {
-    IObserver,
+    Observer,
     ObserverEventType,
-    IObserverEventArgs,
+    ObserverEventArgs,
 }

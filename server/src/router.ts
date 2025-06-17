@@ -1,11 +1,12 @@
-import * as uws from 'uWebSockets.js';
-import { v4 as getuid } from 'uuid';
+import { App } from 'uWebSockets.js';
+import { v4 as getUUID_v4 } from 'uuid';
 import {HttpRequest, HttpResponse, us_listen_socket} from "uWebSockets.js";
 import {Room} from './room/room';
 const port = 9001;
 
 // 创建 uWebSockets.js 服务器
-const app : uws.TemplatedApp = uws.App();
+const app = App();
+// id -> ws
 let wsMap : Record<string,any> = {};//通过id查找玩家
 
 // 根路由
@@ -17,7 +18,7 @@ app.ws('/ws', {
     // 当 WebSocket 连接打开时触发
     open: (ws) :void => {
         const Ws : any = ws as any;
-        const uid : string =getuid();
+        const uid : string =getUUID_v4();
         wsMap[uid]=ws;
         Ws.id=uid;
         console.log(`A new WebSocket connection has been established with ${uid}!`);
@@ -169,3 +170,5 @@ function sendUpdateMsgToRoom(nowRoom : any,expectUser? : string) : void {
         playerWs.send(JSON.stringify(myMsg));
     }
 }
+
+export function startRouter() {}

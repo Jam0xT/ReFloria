@@ -3,6 +3,6 @@ interface Cursable {
 }
 
 class Curse {
-    private _isBless: boolean;
+    // private _isBless: boolean;
 
 }

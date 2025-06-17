@@ -3,18 +3,17 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "ts-node src/router.ts",
+    "start": "ts-node src/index.ts",
     "build": "tsc",
-    "serve": "node dist/server.js"
+    "serve": "node dist/index.js"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "uuid": "^11.1.0",
     "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
+    "uuid": "^11.1.0",
     "uws": "^200.0.0"
   },
   "devDependencies": {

@@ -1,11 +1,11 @@
-interface IEffectable {
+interface Effectable {
 }
 
 class Effect {
-    private _durationTicks: number;
+    // private _durationTicks: number;
 }
 
 export {
     Effect,
-    IEffectable,
+    Effectable,
 }
