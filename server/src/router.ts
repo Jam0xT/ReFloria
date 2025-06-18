@@ -33,7 +33,6 @@ export function startRouter(config: Config) {
                 }
                 case 'joinRoom': {
                     Room.join(parsedMsg.id, userData);
-                    // send update message (room, wsid)
                     break;
                 }
                 case 'leaveRoom': {
