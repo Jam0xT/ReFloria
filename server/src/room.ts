@@ -1,5 +1,5 @@
 import * as crypto from 'crypto';
-import { sendMessage, UserData } from "@/router";
+import { sendMessage, UserData } from "./router";
 
 export class Room {
     private readonly _region: string;//区域

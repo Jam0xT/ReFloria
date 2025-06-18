@@ -36,7 +36,7 @@
         <svg viewBox="0 0 120 20" class="line_left">
             <line x1="10" y1="10" x2="110" y2="10"/>
         </svg>
-        <div class="welcome_nav_play" @click="">
+        <div class="welcome_nav_play" @click="store.welcome_to_start()">
             <svg viewBox="0 0 300 300" class="button_play" >
                 <polygon points="60,60 60,240 215.88,150"/>
             </svg>
@@ -103,6 +103,10 @@ const welcome = {
                 yPercent: 50,
                 ease: 'power3.out',
                 duration: 1.3,
+              onComplete: () => {
+                this.visible.value = false;
+                if (next) next();
+              }
             },
             '<',
         );

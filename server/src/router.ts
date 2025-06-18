@@ -1,7 +1,7 @@
 import { App, WebSocket } from 'uWebSockets.js';
 import { v4 as getUUID_v4 } from 'uuid';
 import Config from './config';
-import { Room } from '@/room';
+import { Room } from './room';
 
 const app = App();
 const wsMap: Record<string, WebSocket<UserData>> = {}; // WebSocketID -> WebSocket<UserData>

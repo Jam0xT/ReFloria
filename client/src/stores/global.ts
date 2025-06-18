@@ -49,7 +49,8 @@ export const global = defineStore('global', {
                 this.show_createRoom();
             })
         },
-        start_to_join_room() { // start -> joinRoom
+        start_to_join_room() {
+            console.log("*")// start -> joinRoom
             this.hide_start(null, () => {
                 this.show_joinRoom();
             })
