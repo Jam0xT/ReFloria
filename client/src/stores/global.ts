@@ -22,6 +22,9 @@ export const global = defineStore('global', {
         show_room: null as unknown as Function,
         update_room: null as unknown as Function,
         hide_room: null as unknown as Function,
+
+        show_auth: null as unknown as Function,
+        hide_auth: null as unknown as Function,
     }),
     actions: {
         first_welcome() { // loading -> welcome
@@ -29,6 +32,12 @@ export const global = defineStore('global', {
                 this.show_background();
                 this.show_welcome();
             });
+        },
+        welcome(hide: (immediate: Function) => any) {
+            hide(this.show_welcome)
+        },
+        auth(hide: (immediate: Function) => any) {
+            hide(this.show_auth)
         },
         welcome_to_start() { // welcome -> start
             this.hide_welcome(null, () => {
