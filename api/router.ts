@@ -1,9 +1,9 @@
-import uWs from 'uWebSockets.js'
+import { App } from 'uWebSockets.js'
 import nodeRSA from 'node-rsa'
 import signin from './auth/signin';
 import signup from './auth/signup';
 
-const app = uWs.App({});
+const app = App({});
 
 const key = new nodeRSA({ b: 2048 });
 key.setOptions({ encryptionScheme: 'pkcs1' });

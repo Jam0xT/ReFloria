@@ -11,8 +11,7 @@
   "description": "",
   "dependencies": {
     "node-rsa": "^1.1.1",
-    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0",
-    "uWebsockets.js": "github:uNetworking/uWebsockets.js"
+    "uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",

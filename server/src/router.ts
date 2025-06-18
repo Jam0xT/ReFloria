@@ -1,7 +1,7 @@
 import { App, WebSocket } from 'uWebSockets.js';
 import { v4 as getUUID_v4 } from 'uuid';
 import Config from './config';
-import { Room } from '@/room/room';
+import { Room } from '@/room';
 
 const app = App();
 const wsMap: Record<string, WebSocket<UserData>> = {}; // WebSocketID -> WebSocket<UserData>
@@ -75,22 +75,6 @@ export function sendMessage(webSocketID: string, msg: any) {
 
 function getNewWebSocketID() {
     return getUUID_v4();
-}
-
-function sendUpdateMsgToRoom(nowRoom : any,expectUser? : string) : void {
-    for(let player in nowRoom.players)
-    {
-        if(nowRoom.players[player].id == expectUser)
-            continue;
-        let playerWs = wsMap[nowRoom.players[player].id];
-        let myMsg : {type : string, options : {room :any}}={
-            type : "updateRoomStatus",
-            options : {
-                room : nowRoom.data()
-            }
-        }
-        playerWs.send(JSON.stringify(myMsg));
-    }
 }
 
 export interface UserData {

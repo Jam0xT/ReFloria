@@ -19,7 +19,7 @@ fs.readFile(configFilePath, 'utf8', (err, data) => {
             !!!
             typescript assumes that config has the correct shape (Config), but this might not be true
             since the config file is written by users. I'm just leaving it like this for now. Will do
-            strict type checks later..
+            strict type checks later.
          */
         console.log('Successfully read config file.');
         startRouter(config);

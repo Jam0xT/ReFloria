@@ -80,6 +80,20 @@ export class Room {
         return true;
     }
 
+    broadcastUpdate(subjectWebSocketID?: string) {
+        for (let webSocketID in this.players) {
+            if (webSocketID === subjectWebSocketID && subjectWebSocketID) {
+                continue;
+            }
+            sendMessage(webSocketID, {
+                type : "updateRoomStatus",
+                options : {
+                    room : this.data()
+                }
+            });
+        }
+    }
+
     static create(options: roomOptions, creatorUserData: UserData) {
         const room = new Room(options);
         room.addPlayer(creatorUserData.webSocketID);
@@ -92,6 +106,10 @@ export class Room {
             }
         });
         return true;
+    }
+
+    static destroy(roomID: string) {
+        delete Room.rooms[roomID];
     }
 
     static join(roomID: string, joinerUserData: UserData) {
@@ -109,6 +127,7 @@ export class Room {
                 room: room.data()
             }
         });
+        room.broadcastUpdate(joinerUserData.webSocketID);
         return true;
     }
 
@@ -121,17 +140,14 @@ export class Room {
             return false;
         room.removePlayer(leaverUserData.webSocketID);
         if ( room.isEmpty )
-            Room.remove(room.id);
+            Room.destroy(room.id);
         leaverUserData.roomID = '';
         sendMessage(leaverUserData.webSocketID, {
             type: 'leftRoom',
             options: {}
-        })
+        });
+        room.broadcastUpdate(leaverUserData.webSocketID);
         return true;
-    }
-
-    static remove(roomID: string) {
-        delete Room.rooms[roomID];
     }
 
     static changeReadyStatus(roomId: string, changerUserData: UserData) {
@@ -143,6 +159,7 @@ export class Room {
         if (!player)
             return false;
         player.isReady = !player.isReady;
+        room.broadcastUpdate(changerUserData.webSocketID);
         return true;
     }
 
@@ -151,6 +168,7 @@ export class Room {
         if (!room)
             return false;
         room.isPublic = !room.isPublic;
+        room.broadcastUpdate();
         return true;
     }
 
