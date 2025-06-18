@@ -1,24 +1,40 @@
-export class Room {
-    private _isPublic: boolean;//是否公开
-    private _region: string;//区域
-    private _totalPlayer: number;//总人数
-    private _playerPerTeam: number;//各队伍人数
-    private _players: Record<string, player>;
-    private _id: string;
-    get id() {return this._id;}
-    get players() {return this._players;}
-    get region() {return this._region;}
-    get isPublic() {return this._isPublic;}
-    get totalPlayer() {return this._totalPlayer;}
-    get playerPerTeam() {return this._playerPerTeam;}
+import * as crypto from 'crypto';
+import { sendMessage, UserData } from "@/router";
 
-    // id -> room
+export class Room {
+    private readonly _region: string;//区域
+    get region() {return this._region;}
+
+    private readonly _maxPlayerCount: number;//总人数
+    get maxPlayerCount() {return this._maxPlayerCount;}
+
+    private readonly _maxPlayerCountPerTeam: number;//各队伍人数
+    get maxPlayerCountPerTeam() {return this._maxPlayerCountPerTeam;}
+
+    private readonly _players: Record<string, Player>;
+    get players() { return this._players; }
+
+    private readonly _id: string;
+    get id() {return this._id;}
+
+    private _isPublic: boolean;//是否公开
+    get isPublic() {return this._isPublic;}
+    set isPublic(isPublic: boolean) {this._isPublic = isPublic;}
+
+    private _isFull!: boolean;
+    get isFull() {return this._isFull;}
+    set isFull(isFull: boolean) {this._isFull = isFull;}
+
+    private _isEmpty!: boolean;
+    get isEmpty() {return this._isEmpty;}
+    set isEmpty(isEmpty: boolean) {this._isEmpty = isEmpty;}
+
     static rooms: Record<string, Room> = {};
 
     data() {
         return {
             isPublic: this._isPublic,
-            totalPlayer: this._totalPlayer,
+            totalPlayer: this._maxPlayerCount,
             nowPlayer: Object.keys(this.players).length,
             id: this._id,
             players: this._players,
@@ -26,100 +42,145 @@ export class Room {
     }
 
     constructor(options: roomOptions) {
-        this._region = options.area;
-        this._totalPlayer = options.totalPlayer;
-        this._playerPerTeam = options.playerPerTeam;
+        this._region = options.region;
+        this._maxPlayerCount = options.totalPlayer;
+        this._maxPlayerCountPerTeam = options.playerPerTeam;
         this._isPublic = options.isPublic ?? true;
-        this._id = Room.newID();
+        this._id = Room.getNewID();
         this._players = {};
     }
 
-    static newID(): string {
-        function randomLetter(): string {
-            let a: number = Math.floor(Math.random() * 36);
-            return a.toString(36);
-        }
-        function randomString(length: number): string {
-            let str = "";
-            for (let i = 1; i <= length; i++)
-                str += randomLetter();
-            return str;
-        }
-        let id = randomString(6);
-        while (Room.rooms[id]) {
-            id = randomString(6);
-        }
-        return id;
-    }
-
-    static create(options: roomOptions, creator: string): Room {
-        let room = new Room(options);
-        room._players[creator] = {id: creator, name: creator, isReady: false};
-        Room.rooms[room.id] = room;
-        return room;
-    }
-
-    static join(id: string, joiner: string): Room | null {
-        const room = Room.rooms[id];
-        if (!room)
-            return null;
-        if ((joiner in room._players) || Object.keys(room._players).length == room._totalPlayer)
-            return null;
-        room._players[joiner] = {id: joiner, name: joiner, isReady: false};
-        return room;
-    }
-
-    static leave(id: string, leaver: string): Room | boolean {
-        const room = Room.rooms[id];
-        if (!Room.rooms[id])
-            return false;
-        if (!(leaver in room._players))
-            return false;
-        delete room._players[leaver];
-        if (Object.keys(room._players).length == 0) {
-            delete Room.rooms[id];
-            return true;
-        }
-        return room;
-    }
-
-    static changeReadyStatus(id: string, changer: string): Room | null {
-        if (Room.rooms[id] == undefined)
-            return null;
-        let nowRoom: Room = Room.rooms[id];
-        if (!(changer in nowRoom._players))
-            return null;
-        nowRoom._players[changer].isReady = !nowRoom._players[changer].isReady;
-        return nowRoom;
-    }
-
-    static delete(id: string): boolean {
-        const room = Room.rooms[id];
-        if (room) {
-            delete Room.rooms[id];
+    addPlayer(WebSocketID: string) {
+        const currentPlayerCount = Object.keys(this.players).length;
+        if ( currentPlayerCount < this.maxPlayerCount ) {
+            if ( currentPlayerCount === this.maxPlayerCount - 1 ) {
+                this.isFull = true;
+            }
+            this.players[WebSocketID] = {
+                webSocketID: WebSocketID,
+                name: WebSocketID,
+                isReady: false,
+            } as Player;
+            this.isEmpty = false;
             return true;
         }
         return false;
     }
 
-    static changePublicStatus(id: string): number {
-        if (Room.rooms[id] != undefined) {
-            Room.rooms[id]._isPublic = !Room.rooms[id]._isPublic;
-            return Room.rooms[id]._isPublic ? 1 : 0;
+    removePlayer(WebSocketID: string) {
+        const player = this.players[WebSocketID];
+        if (!player)
+            return false;
+        const currentPlayerCount = Object.keys(this.players).length;
+        if ( currentPlayerCount === 1 ) {
+            this.isEmpty = true;
         }
-        return -1;
+        delete this.players[WebSocketID];
+        this.isFull = false;
+        return true;
+    }
+
+    static create(options: roomOptions, creatorUserData: UserData) {
+        const room = new Room(options);
+        room.addPlayer(creatorUserData.webSocketID);
+        Room.rooms[room.id] = room;
+        creatorUserData.roomID = room.id;
+        sendMessage(creatorUserData.webSocketID, {
+            type: "createdRoom",
+            options: {
+                room: room.data()
+            }
+        });
+        return true;
+    }
+
+    static join(roomID: string, joinerUserData: UserData) {
+        const room = Room.rooms[roomID];
+        if (!room)
+            return false;
+        const players = room.players;
+        if ((joinerUserData.webSocketID in players) || room.isFull)
+            return false;
+        room.addPlayer(joinerUserData.webSocketID);
+        joinerUserData.roomID = room.id;
+        sendMessage(joinerUserData.webSocketID, {
+            type: "joinedRoom",
+            options: {
+                room: room.data()
+            }
+        });
+        return true;
+    }
+
+    static leave(roomID: string, leaverUserData: UserData) {
+        const room = Room.rooms[roomID];
+        if (!room)
+            return false;
+        const players = room.players;
+        if (!(leaverUserData.webSocketID in players))
+            return false;
+        room.removePlayer(leaverUserData.webSocketID);
+        if ( room.isEmpty )
+            Room.remove(room.id);
+        leaverUserData.roomID = '';
+        sendMessage(leaverUserData.webSocketID, {
+            type: 'leftRoom',
+            options: {}
+        })
+        return true;
+    }
+
+    static remove(roomID: string) {
+        delete Room.rooms[roomID];
+    }
+
+    static changeReadyStatus(roomId: string, changerUserData: UserData) {
+        const room = Room.rooms[roomId];
+        if (!room)
+            return false;
+        const players = room.players;
+        const player = players[changerUserData.webSocketID];
+        if (!player)
+            return false;
+        player.isReady = !player.isReady;
+        return true;
+    }
+
+    static changePublicStatus(roomID: string) {
+        const room = Room.rooms[roomID];
+        if (!room)
+            return false;
+        room.isPublic = !room.isPublic;
+        return true;
+    }
+
+    static getNewID(): string {
+        const charList = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const fixedIDLen = 6;
+        const arr = new Uint32Array(1);
+        crypto.getRandomValues(arr);
+        let val = arr[0];
+        let id = '';
+        while (val > 0) {
+            id += charList[val % charList.length];
+            val = (val - val % charList.length) / charList.length;
+        }
+        while (id.length < fixedIDLen) {
+            id += '0';
+        }
+        return id;
     }
 }
 
 interface roomOptions {
     isPublic?: boolean;
-    area: string;
+    region: string;
     totalPlayer: number;
     playerPerTeam: number;
 }
 
-interface player {
-    id: string;
+interface Player {
+    webSocketID: string;
     name: string;
     isReady: boolean;
 }

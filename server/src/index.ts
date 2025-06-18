@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import Config from './config';
+import { startRouter } from './router';
 import * as process from "node:process";
 
 const configFilePath = path.join(__dirname, '..', 'config.json');
@@ -21,6 +22,7 @@ fs.readFile(configFilePath, 'utf8', (err, data) => {
             strict type checks later..
          */
         console.log('Successfully read config file.');
+        startRouter(config);
     } catch (err) {
         console.error(`Error reading config file at ${configFilePath}: ${err}`);
         return ;
