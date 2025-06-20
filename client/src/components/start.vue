@@ -1,7 +1,7 @@
 <template>
     <div class="start _fullscreen" v-show="start.visible.value">
         <div class="menu">
-            <div class="menu_item create" @click="store.to_create_room(store.hide_Start)">
+            <div class="menu_item create" @click="store.to_create_room(store.hide_start)">
                 <p class="_font_4">Create Room</p>
             </div>
             <div class="menu_item join" @click="store.to_join_room(store.hide_start)">
@@ -39,39 +39,37 @@ const currentServer = ref<ServerInfo>({
 
 const start = {
     container: null as null | HTMLElement,
+    menu: null as HTMLElement,
     menuItems: null as null | NodeListOf<HTMLElement>,
     animator: null as unknown as gsap.core.Timeline,
     visible: ref(false),
-
-    // 初始化组件
     init() {
         this.container = document.querySelector('.start');
+        this.menu = document.querySelector('.menu');
         this.menuItems = document.querySelectorAll('.menu_item');
     },
-
-    // 显示开始界面
     show() {
-        console.log("show start");
-        // if (this.animator?.isActive()) return;
-
+        if (this.animator?.isActive()) {
+            return ;
+        }
         this.visible.value = true;
-        this.animator = gsap.timeline()
-            .to(this.menuItems, {
-                opacity: 1,
-                stagger: 0.2,
+        this.animator = gsap.timeline().from(
+            this.menu,
+            {
+                opacity: 0,
                 duration: 0.8,
                 ease: 'power3.out',
-            });
-        console.log(this.animator);
+            }
+        );
     },
-
-    // 隐藏开始界面
-    hide(immediate?: Function, next?: Function) {
-        // if (this.animator?.isActive()) return;
-        console.log("hide start");
+    hide(immediate?: Function, next?: Function): void {
+        if (this.animator.isActive()) {
+            return ;
+        }
         if (immediate) immediate();
-        this.animator = gsap.timeline()
-            .to(this.menuItems, {
+        this.animator = gsap.timeline().to(
+            this.menu,
+            {
                 opacity: 0,
                 stagger: 0.1,
                 duration: 0.6,
@@ -80,16 +78,15 @@ const start = {
                     this.visible.value = false;
                     if (next) next();
                 }
-            });
+            }
+        );
     },
 };
 
-//挂载时获取服务器列表
-onMounted(async () => {
+onMounted(() => {
     start.init();
 });
 
-// 将方法暴露给全局store
 store.show_start = start.show.bind(start);
 store.hide_start = start.hide.bind(start);
 </script>
@@ -108,6 +105,7 @@ store.hide_start = start.hide.bind(start);
     display: flex;
     flex-direction: column;
     gap: calc(var(--scale) * 3rem);
+    opacity: 1;
 }
 
 .menu_item {

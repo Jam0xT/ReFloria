@@ -79,7 +79,9 @@ const room = {
         console.log(nowPlayers.value);
     },
     show() {
-        // if (this.animator?.isActive()) return;
+        if (this.animator?.isActive()) {
+            return;
+        }
         console.log("show room");
         this.update();
         this.visible.value = true;
@@ -103,8 +105,9 @@ const room = {
     },
 
     hide(immediate?: Function, next?: Function) {
-        // if (this.animator?.isActive()) return;
-
+        if (this.animator?.isActive()) {
+            return;
+        }
         if (immediate) immediate();
 
         this.animator = gsap.timeline()
