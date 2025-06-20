@@ -10,17 +10,15 @@
 </template>
 
 <script setup lang="ts">
-import Loading from './components/loading.vue';
-import Welcome from './components/welcome.vue';
-import Background from './components/background.vue';
-import Start from './components/start.vue';
-import CreateRoom from './components/createRoom.vue';
-import JoinRoom from './components/joinRoom.vue';
-import Room from './components/room.vue';
-import Auth from './components/auth.vue';
+import Loading from '@/src/components/loading.vue';
+import Welcome from '@/src/components/welcome.vue';
+import Background from '@/src/components/background.vue';
+import Start from '@/src/components/start.vue';
+import CreateRoom from '@/src/components/createRoom.vue';
+import JoinRoom from '@/src/components/joinRoom.vue';
+import Room from '@/src/components/room.vue';
+import Auth from '@/src/components/auth.vue';
 </script>
-
-<!-- 保持原有样式不变 -->
 
 <style>
 * {

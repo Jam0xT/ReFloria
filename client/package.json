@@ -21,6 +21,7 @@
     "@vue/tsconfig": "^0.7.0",
     "typescript": "~5.8.3",
     "vite": "^6.3.5",
+    "vite-tsconfig-paths": "^5.1.4",
     "vue-tsc": "^2.2.8"
   },
   "type": "commonjs"

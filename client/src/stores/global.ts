@@ -48,31 +48,5 @@ export const global = defineStore('global', {
         to_join_room(hide: (immediate: Function, next: Function) => void) {
             hide(null, this.show_joinRoom);
         },
-        welcome_to_start() { // welcome -> start
-            this.hide_welcome(null, () => {
-                this.show_start();
-            })
-        },
-        start_to_create_room() { // start -> createRoom
-            this.hide_start(null, () => {
-                this.show_createRoom();
-            })
-        },
-        start_to_join_room() {
-            console.log("*")// start -> joinRoom
-            this.hide_start(null, () => {
-                this.show_joinRoom();
-            })
-        },
-        create_room_to_start() { // createRoom -> start
-            this.hide_createRoom(null, () => {
-                this.show_start();
-            });
-        },
-        join_room_to_start() { // joinRoom -> start
-            this.hide_joinRoom(null, () => {
-                this.show_start();
-            });
-        },
     }
 });

@@ -34,11 +34,11 @@
 </template>
 
 <script setup lang="ts">
-import {global} from '../stores/global.ts';
+import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
-import * as player from '../playerData';
+import * as player from '@/src/playerData';
 import gsap from 'gsap';
-import * as net from '../networking';
+import * as net from '@/src/networking';
 
 const store = global();
 

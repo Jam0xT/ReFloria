@@ -1,6 +1,6 @@
 <template>
     <div class="auth _fullscreen" v-show="auth.visible.value">
-        <div class="back" @click="store.to_welcome(auth.hide.bind(auth))">
+        <div class="back" @click="store.to_welcome(store.hide_auth)">
             <svg viewBox="0 0 50 50">
                 <rect x="0" y="0" width="50" height="50" />
             </svg>
@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import axios from 'axios'
 import JSEncrypt from 'jsencrypt'
-import { global } from '../stores/global.ts';
+import { global } from '@/src/stores/global.ts';
 import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
 

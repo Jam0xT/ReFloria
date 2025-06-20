@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { global } from '../stores/global.ts';
+import { global } from '@/src/stores/global.ts';
 import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
 const store = global();

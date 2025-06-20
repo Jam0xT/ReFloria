@@ -1,10 +1,10 @@
 <template>
     <div class="start _fullscreen" v-show="start.visible.value">
         <div class="menu">
-            <div class="menu_item create" @click="store.start_to_create_room()">
+            <div class="menu_item create" @click="store.to_create_room(store.hide_Start)">
                 <p class="_font_4">Create Room</p>
             </div>
-            <div class="menu_item join" @click="store.start_to_join_room()">
+            <div class="menu_item join" @click="store.to_join_room(store.hide_start)">
                 <p class="_font_4">Join Room</p>
             </div>
         </div>
@@ -15,7 +15,7 @@
 </template>
 
 <script setup lang="ts">
-import {global} from '../stores/global.ts';
+import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
 
