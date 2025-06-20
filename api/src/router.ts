@@ -1,7 +1,7 @@
 import { App } from 'uWebSockets.js'
 import nodeRSA from 'node-rsa'
-import signin from './auth/signin';
-import signup from './auth/signup';
+import signin from '@/src/auth/signin';
+import signup from '@/src/auth/signup';
 
 const app = App({});
 

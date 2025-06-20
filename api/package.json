@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "tsc -p tsconfig.json && node dist/router.js"
+    "dev": "ts-node src/router.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/router.js"
   },
   "keywords": [],
   "author": "",
