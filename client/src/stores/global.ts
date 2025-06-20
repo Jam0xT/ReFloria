@@ -33,11 +33,20 @@ export const global = defineStore('global', {
                 this.show_welcome();
             });
         },
-        welcome(hide: (immediate: Function) => any) {
-            hide(this.show_welcome)
+        to_welcome(hide: (immediate: Function, next: Function) => void) {
+            hide(null, this.show_welcome);
         },
-        auth(hide: (immediate: Function) => any) {
-            hide(this.show_auth)
+        to_auth(hide: (immediate: Function, next: Function) => void) {
+            hide(null, this.show_auth);
+        },
+        to_start(hide: (immediate: Function, next: Function) => void) {
+            hide(null, this.show_start);
+        },
+        to_create_room(hide: (immediate: Function, next: Function) => void) {
+            hide(null, this.show_createRoom);
+        },
+        to_join_room(hide: (immediate: Function, next: Function) => void) {
+            hide(null, this.show_joinRoom);
         },
         welcome_to_start() { // welcome -> start
             this.hide_welcome(null, () => {

@@ -1,6 +1,6 @@
 <template>
     <div class="auth _fullscreen" v-show="auth.visible.value">
-        <div class="back" @click="store.welcome(auth.hide.bind(auth))">
+        <div class="back" @click="store.to_welcome(auth.hide.bind(auth))">
             <svg viewBox="0 0 50 50">
                 <rect x="0" y="0" width="50" height="50" />
             </svg>

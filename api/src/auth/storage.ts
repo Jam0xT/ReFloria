@@ -1,7 +1,7 @@
 import path from 'path';
 import fs from 'fs'
 
-export const dbPath = path.resolve(__dirname, '../database/usersLoginInformation.json');
+export const dbPath = path.resolve(__dirname, '../../database/usersLoginInformation.json');
 
 export class UserLoginInformation {
     constructor(public pwd: string, public lastLoginTime: number) {}
