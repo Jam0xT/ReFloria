@@ -1,19 +1,21 @@
 import * as crypto from 'crypto'
-import { userMap } from './storage';
+import {saveUserMap, UserLoginInformation, userMap} from './storage';
 
 export default function signin(token: string, id: string, pwd: string) {
     if (token) {
         const [id, pwd] = token.split('+++');
-        if (!userMap.has(id) || userMap.get(id)!.pwd !== pwd)
+        const user = userMap.get(id);
+        if (!user || user.pwd !== pwd)
             return {
                 msg: 'token error',
                 clearToken: true
             };
-        if (Date.now() - userMap.get(id)!.lastLoginTime >= 24 * 60 * 60 * 1000)
+        if (Date.now() - user.lastLoginTime >= 24 * 60 * 60 * 1000)
             return {
                 msg: 'your token is expired',
                 clearToken: true
             };
+        userLogin(user)
         return {
             msg: 'ok'
         };
@@ -28,7 +30,7 @@ export default function signin(token: string, id: string, pwd: string) {
         return {
             msg: 'password error'
         };
-    user.lastLoginTime = Date.now();
+    userLogin(user)
     return {
         msg: 'ok',
         token: `${id}+++${proPwd}`
@@ -37,4 +39,9 @@ export default function signin(token: string, id: string, pwd: string) {
 }
 function encryptPwd(pwd: string) {
     return crypto.hash('md5', crypto.hash('md5', pwd, 'hex') + pwd, 'hex');
+}
+
+function userLogin(user: UserLoginInformation) {
+    user.lastLoginTime = Date.now();
+    saveUserMap()
 }

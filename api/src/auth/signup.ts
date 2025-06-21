@@ -1,5 +1,5 @@
 import * as crypto from 'crypto'
-import { UserLoginInformation, userMap } from './storage';
+import {saveUserMap, UserLoginInformation, userMap} from './storage';
 
 export default function signup(id: string, pwd: string) {
     if (id.length == 0)
@@ -16,6 +16,7 @@ export default function signup(id: string, pwd: string) {
         };
     const proPwd = encryptPwd(pwd);
     userMap.set(id, new UserLoginInformation(proPwd, Date.now()));
+    saveUserMap()
     return {
         msg: 'ok',
         token: `${id}+++${proPwd}`

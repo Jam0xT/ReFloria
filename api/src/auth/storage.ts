@@ -7,9 +7,18 @@ export class UserLoginInformation {
     constructor(public pwd: string, public lastLoginTime: number) {}
 }
 
-export const userMap = new Map<string, UserLoginInformation>(JSON.parse(fs.readFileSync(dbPath, 'utf-8')) /* entries */);
+let userDB;
+fs.readFile(dbPath, 'utf-8', (err, data) => {
+    if (err) {
+        fs.writeFileSync(dbPath, '[]')
+        userDB = []
+        return;
+    }
+    userDB = JSON.parse(data);
+})
 
-function saveUserMap() {
+export const userMap = new Map<string, UserLoginInformation>(userDB /* entries */);
+
+export function saveUserMap() {
     fs.writeFileSync(dbPath, JSON.stringify(Array.from(userMap.entries())));
 }
-setInterval(saveUserMap, 5 * 1000);
