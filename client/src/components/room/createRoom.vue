@@ -69,11 +69,12 @@ const createRoom = {
         this.container = document.querySelector('.createRoom');
         this.formItems = document.querySelectorAll('.form_item, .submit_button');
         this.backButton = document.querySelector('.back_button');
-        console.log(this.backButton);
     },
 
     show() {
-        // if (this.animator?.isActive()) return;
+        if (this.animator?.isActive()) {
+            return;
+        }
         console.log("show createRoom");
         this.visible.value = true;
         this.animator = gsap.timeline()
@@ -93,7 +94,9 @@ const createRoom = {
     },
 
     hide(immediate?: Function, next?: Function) {
-        // if (this.animator?.isActive()) return;
+        if (this.animator?.isActive()) {
+            return;
+        }
         console.log("hide createRoom");
         if (immediate) immediate();
 
@@ -140,7 +143,7 @@ onMounted(() => {
 
 store.show_createRoom = createRoom.show.bind(createRoom);
 store.hide_createRoom = createRoom.hide.bind(createRoom);
-console.log("???")
+
 </script>
 
 <style scoped>

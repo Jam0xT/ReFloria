@@ -1,11 +1,12 @@
 import JSEncrypt from "jsencrypt";
 import axios from "axios";
+import config from "@/src/config";
 
 const encryptor = new JSEncrypt();
 
 export function refreshPubKey() {
     axios.get(
-        'http://localhost:3000/pubKey',
+        `${config.API}/pubKey`,
         {}
     ).then(r => {
         console.log(r.data)
@@ -29,7 +30,7 @@ export async function signUp(id: string, pwd: string) {
 
     const response =
         await axios.get(
-            'http://localhost:3000/signup',
+            `${config.API}/signup`,
             { params }
         ).catch((e) => {
             console.error(e);
@@ -63,7 +64,7 @@ export async function signIn(id: string, pwd: string) {
 
     const response =
         await axios.get(
-            'http://localhost:3000/signin',
+            `${config.API}/signin`,
             { params }
         ).catch((e) => {
             console.error(e);

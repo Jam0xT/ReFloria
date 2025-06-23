@@ -6,41 +6,22 @@
             </svg>
         </div>
         <div class="menu">
-            <div class="menu_item create" @click="roomStore.to_create_room(store.hide_start)">
+            <div class="menu_item create" @click="store.to_create_room(store.hide_start)">
                 <p class="_font_4">Create Room</p>
             </div>
-            <div class="menu_item join" @click="roomStore.to_join_room(store.hide_start)">
+            <div class="menu_item join" @click="store.to_join_room(store.hide_start)">
                 <p class="_font_4">Join Room</p>
             </div>
-        </div>
-        <div class="server_info" v-if="servers.length">
-            <p class="_font_2">服务器: {{ currentServer.name }}</p>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
+import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
 
 const store = global();
-const roomStore = roomStore();
-
-// 服务器数据
-interface ServerInfo {
-    name: string;
-    region: string;
-    ip: string;
-    port: number;
-}
-
-const servers = ref<ServerInfo[]>([]);
-const currentServer = ref<ServerInfo>({
-    name: '',
-    region: '',
-    ip: '',
-    port: 0
-});
 
 const start = {
     isInitialized: false,

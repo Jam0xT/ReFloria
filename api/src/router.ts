@@ -1,7 +1,7 @@
 import { App } from 'uWebSockets.js'
 import nodeRSA from 'node-rsa'
-import signin from '@/src/auth/signin';
-import signup from '@/src/auth/signup';
+import signIn from '@/src/auth/signIn';
+import signUp from '@/src/auth/signUp';
 
 const app = App({});
 
@@ -28,7 +28,7 @@ export default function startRouter(port: number) {
         try {
             const content = key.decrypt(original, 'utf8');
             const data = JSON.parse(content);
-            res.end(JSON.stringify(signup(data.id, data.pwd)));
+            res.end(JSON.stringify(signUp(data.id, data.pwd)));
         } catch (_a) {
             res.writeStatus(badReq);
             return;
@@ -44,7 +44,7 @@ export default function startRouter(port: number) {
         try {
             const content = key.decrypt(original, 'utf8');
             const data = JSON.parse(content);
-            res.end(JSON.stringify(signin(data.token, data.id, data.pwd)));
+            res.end(JSON.stringify(signIn(data.token, data.id, data.pwd)));
         } catch (e) {
             res.writeStatus(badReq);
             console.log(e);

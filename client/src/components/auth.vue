@@ -12,7 +12,7 @@
             </div>
             <div class="buttons">
                 <button type="button" @click="signUp(id, pwd)">register</button>
-                <button type="button" @click="signIn(id, pwd)">signin</button>
+                <button type="button" @click="signIn(id, pwd)">signIn</button>
                 <button type="button" @click="clearStorage">clear storage</button>
             </div>
             <p>

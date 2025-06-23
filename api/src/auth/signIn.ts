@@ -1,7 +1,7 @@
 import * as crypto from 'crypto'
 import {saveUserMap, UserLoginInformation, userMap} from './storage';
 
-export default function signin(token: string, id: string, pwd: string) {
+export default function signIn(token: string, id: string, pwd: string) {
     if (token) {
         const [id, pwd] = token.split('+++');
         const user = userMap.get(id);

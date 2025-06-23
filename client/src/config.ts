@@ -3,7 +3,7 @@ interface Config {
 }
 
 const config: Config = {
-    API: "localhost:5173",
+    API: "localhost:3000",
 }
 
 export default config;

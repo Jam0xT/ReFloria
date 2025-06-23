@@ -42,7 +42,9 @@ const joinRoom = {
     },
 
     show() {
-        // if (this.animator?.isActive()) return;
+        if (this.animator?.isActive()) {
+            return;
+        }
         console.log("show joinRoom");
         this.visible.value = true;
 
@@ -62,7 +64,9 @@ const joinRoom = {
     },
 
     hide(immediate?: Function, next?: Function) {
-        // if (this.animator?.isActive()) return;
+        if (this.animator?.isActive()) {
+            return;
+        }
         console.log("hide joinRoom");
         if (immediate) immediate();
 

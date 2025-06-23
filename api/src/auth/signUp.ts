@@ -1,7 +1,7 @@
 import * as crypto from 'crypto'
 import {saveUserMap, UserLoginInformation, userMap} from './storage';
 
-export default function signup(id: string, pwd: string) {
+export default function signUp(id: string, pwd: string) {
     if (id.length == 0)
         return {
             msg: 'id please'
