@@ -11,10 +11,9 @@
                 <input v-model="pwd" placeholder="pwd" />
             </div>
             <div class="buttons">
-                <button type="button" @click="signup(id, pwd)">register</button>
-                <button type="button" @click="signin(id, pwd)">signin</button>
+                <button type="button" @click="signUp(id, pwd)">register</button>
+                <button type="button" @click="signIn(id, pwd)">signin</button>
                 <button type="button" @click="clearStorage">clear storage</button>
-
             </div>
             <p>
                 Message:
@@ -31,13 +30,17 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
-import JSEncrypt from 'jsencrypt'
 import { global } from '@/src/stores/global.ts';
 import { onMounted, ref } from 'vue';
+import { refreshPubKey, signIn, signUp, clearStorage } from "@/src/scripts/auth.ts";
 import gsap from 'gsap';
 
 const store = global();
+
+const id = ref('')
+const pwd = ref('')
+const message = ref(`登录将会使用此token: ${localStorage.getItem('token')}`)
+
 const auth = {
     container: null as null | HTMLElement,
     animator: null as unknown as gsap.core.Timeline,
@@ -91,78 +94,7 @@ onMounted(() => {
 store.show_auth = auth.show.bind(auth);
 store.hide_auth = auth.hide.bind(auth);
 
-const id = ref('')
-const pwd = ref('')
-const message = ref(`登录将会使用此token: ${localStorage.getItem('token')}`)
-
-const encryptor = new JSEncrypt()
-
-function refreshPubKey() {
-    axios.get('http://localhost:3000/pubKey', {}).then(r => {
-        console.log(r.data)
-        encryptor.setPublicKey(r?.data)
-    }).catch((e) => {
-        console.error(e);
-    })
-}
-refreshPubKey()
-
-async function signup(id: string, pwd: string) {
-    const params = {
-        type: 'json',
-        content: encryptor.encrypt(JSON.stringify({
-            id: encrypt(id),
-            pwd: encrypt(pwd)
-        }))
-    };
-
-    const response = await axios.get('http://localhost:3000/signup', { params }).catch((e) => {
-        console.error(e);
-        refreshPubKey()
-    });
-
-    const data = response?.data
-    
-    message.value = data.msg
-
-    if (data.token) {
-        localStorage.setItem('token', data.token)
-    }
-}
-async function signin(id: string, pwd: string) {
-    const token = localStorage.getItem('token')
-    const params = {
-        content: token ? encryptor.encrypt(JSON.stringify({
-            token: token
-        })) : encryptor.encrypt(JSON.stringify({
-            id: encrypt(id),
-            pwd: encrypt(pwd),
-        }))
-    };
-
-    const response = await axios.get('http://localhost:3000/signin', { params }).catch((e) => {
-        console.error(e);
-    });
-    const data = response?.data
-    
-    message.value = data.msg
-
-    if (data.token) {
-        localStorage.setItem('token', data.token)
-    }
-
-    if (data.clearToken) {
-        localStorage.setItem('token', '')
-    }
-}
-function clearStorage() {
-    localStorage.clear()
-}
-
-function encrypt(str: string) {
-    return btoa(str)
-}
-
+refreshPubKey();
 </script>
 
 <style scoped>

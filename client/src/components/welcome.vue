@@ -31,15 +31,6 @@
             <p class="text_re _font_7">RE</p>
             <p class="text_floria _font_6">Floria</p>
         </div>
-        <svg viewBox="0 0 200 500" class="rect_left">
-            <rect x="0" y="0" width="200" height="500"/>
-        </svg>
-        <svg viewBox="0 0 500 200" class="rect_bottom">
-            <rect x="0" y="0" width="500" height="200"/>
-        </svg>
-        <svg viewBox="0 0 120 20" class="line_left">
-            <line x1="10" y1="10" x2="110" y2="10"/>
-        </svg>
         <div class="welcome_nav_play" @click="store.to_start(store.hide_welcome)">
             <svg viewBox="0 0 300 300" class="button_play">
                 <polygon points="60,60 60,240 215.88,150"/>
@@ -55,25 +46,26 @@ import gsap from 'gsap';
 
 const store = global();
 const welcome = {
+    isInitialized: false,
     container: null as null | HTMLElement,
     textRe: null as null | HTMLElement,
     textFloria: null as null | HTMLElement,
     animator: null as unknown as gsap.core.Timeline,
     visible: ref(false),
     init() {
+        this.isInitialized = true;
         this.container = document.querySelector('.welcome');
         this.textRe = document.querySelector('.text_re');
         this.textFloria = document.querySelector('.text_floria');
     },
     reset() {
-        if (this.textRe && this.textFloria) {
-            gsap.set(
-                [this.textRe, this.textFloria],
-                {
-                    yPercent: 0,
-                }
-            );
-        }
+        if (!this.isInitialized) return;
+        gsap.set(
+            [this.textRe, this.textFloria],
+            {
+                yPercent: 0,
+            }
+        );
     },
     show() {
         if (this.animator?.isActive()) {
@@ -95,7 +87,7 @@ const welcome = {
                 ease: 'power3.out',
                 duration: 0.8,
             },
-            '<',
+            '<'
         );
     },
     hide(immediate?: Function, next?: Function): void {
@@ -105,7 +97,6 @@ const welcome = {
         if (immediate) {
             immediate();
         }
-        console.log('hide welcome')
         this.animator = gsap.timeline().to(
             this.textRe,
             {
@@ -139,7 +130,7 @@ onMounted(() => {
 
 <style scoped>
 .welcome {
-    --scale: 1;
+    --scale: 1
 }
 
 .title {

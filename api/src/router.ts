@@ -53,10 +53,10 @@ export default function startRouter(port: number) {
     });
     app.listen(port, (token) => {
         if (token) {
-            console.log('APIs Listening to port ' + 3000);
+            console.log(`APIs Listening to port: ${port}.`);
         }
         else {
-            console.log('Failed to listen to port ' + 3000);
+            console.log(`Failed to listen to port: ${port}.`);
         }
     });
 }

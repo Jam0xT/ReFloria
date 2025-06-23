@@ -34,19 +34,19 @@ export const global = defineStore('global', {
             });
         },
         to_welcome(hide: (immediate: Function, next: Function) => void) {
-            hide(null, this.show_welcome);
+            hide(this.show_welcome);
         },
         to_auth(hide: (immediate: Function, next: Function) => void) {
-            hide(null, this.show_auth);
+            hide(this.show_auth);
         },
         to_start(hide: (immediate: Function, next: Function) => void) {
-            hide(null, this.show_start);
+            hide(this.show_start);
         },
         to_create_room(hide: (immediate: Function, next: Function) => void) {
-            hide(null, this.show_createRoom);
+            hide(this.show_createRoom);
         },
         to_join_room(hide: (immediate: Function, next: Function) => void) {
-            hide(null, this.show_joinRoom);
+            hide(this.show_joinRoom);
         },
     }
 });

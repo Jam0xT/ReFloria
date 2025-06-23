@@ -1,10 +1,15 @@
 <template>
     <div class="start _fullscreen" v-show="start.visible.value">
+        <div class="back_button" @click="store.to_welcome(store.hide_start)">
+            <svg viewBox="0 0 24 24">
+                <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+            </svg>
+        </div>
         <div class="menu">
-            <div class="menu_item create" @click="store.to_create_room(store.hide_start)">
+            <div class="menu_item create" @click="roomStore.to_create_room(store.hide_start)">
                 <p class="_font_4">Create Room</p>
             </div>
-            <div class="menu_item join" @click="store.to_join_room(store.hide_start)">
+            <div class="menu_item join" @click="roomStore.to_join_room(store.hide_start)">
                 <p class="_font_4">Join Room</p>
             </div>
         </div>
@@ -15,11 +20,11 @@
 </template>
 
 <script setup lang="ts">
-import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
 
 const store = global();
+const roomStore = roomStore();
 
 // 服务器数据
 interface ServerInfo {
@@ -38,27 +43,38 @@ const currentServer = ref<ServerInfo>({
 });
 
 const start = {
+    isInitialized: false,
     container: null as null | HTMLElement,
     menu: null as HTMLElement,
     menuItems: null as null | NodeListOf<HTMLElement>,
     animator: null as unknown as gsap.core.Timeline,
     visible: ref(false),
     init() {
+        this.isInitialized = true;
         this.container = document.querySelector('.start');
         this.menu = document.querySelector('.menu');
         this.menuItems = document.querySelectorAll('.menu_item');
+    },
+    reset() {
+        gsap.set(
+            [this.container],
+            {
+                opacity: 1,
+            }
+        )
     },
     show() {
         if (this.animator?.isActive()) {
             return ;
         }
+        this.reset();
         this.visible.value = true;
         this.animator = gsap.timeline().from(
-            this.menu,
+            this.container,
             {
                 opacity: 0,
-                duration: 0.8,
-                ease: 'power3.out',
+                duration: 0.6,
+                ease: 'none',
             }
         );
     },
@@ -68,12 +84,11 @@ const start = {
         }
         if (immediate) immediate();
         this.animator = gsap.timeline().to(
-            this.menu,
+            this.container,
             {
                 opacity: 0,
-                stagger: 0.1,
-                duration: 0.6,
-                ease: 'power3.in',
+                duration: 0.4,
+                ease: 'none',
                 onComplete: () => {
                     this.visible.value = false;
                     if (next) next();
@@ -98,14 +113,39 @@ store.hide_start = start.hide.bind(start);
     align-items: center;
     background-color: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
-    z-index: 1000;
+    z-index: 2000;
 }
 
 .menu {
     display: flex;
     flex-direction: column;
     gap: calc(var(--scale) * 3rem);
-    opacity: 1;
+}
+
+.back_button {
+    position: absolute;
+    top: var(--margin-y);
+    left: var(--margin-x);
+    cursor: pointer;
+    width: calc(var(--scale) * 5rem);
+    height: calc(var(--scale) * 5rem);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.back_button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+.back_button svg {
+    fill: #87c0d6;
+    width: 60%;
+    height: 60%;
 }
 
 .menu_item {
