@@ -36,9 +36,10 @@
 <script setup lang="ts">
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
+import * as roomNetworking from '@/src/networking/room.ts'
 import * as player from '@/src/playerData';
 import gsap from 'gsap';
-import * as net from '@/src/networking';
+import { nw } from '@/src/networking';
 
 const store = global();
 
@@ -65,6 +66,52 @@ const room = {
         this.header = document.querySelector('.header');
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
+
+        nw.onMessage((event) => {
+            const data = JSON.parse(event.data);
+            switch (data.type) {
+                case "setId":
+                    player.setId(data.options.id);
+                    break
+                case "createdRoom":
+                    let room = data.options.room;
+                    player.setRoom(room);
+                    store.hide_createRoom(null,() => {
+                        store.show_room();
+                    });
+                    break
+                case "joinedRoom":
+                    player.setRoom(data.options.room);
+                    store.hide_joinRoom(null,() => {
+                        store.show_room();
+                    });
+                    break
+                case "leftRoom":
+                    player.setRoom(null);
+                    store.hide_room(null, () => {
+                        store.show_start();
+                    });
+                    break
+                case "updateRoomStatus":
+                    let room = data.options.room;
+                    player.setRoom(room);
+                    store.update_room();
+                    break
+                case "changedRoomPublicStatus":
+                    // let msg: {type : string ; id : string} = {
+                    //     type : "deleteRoom",
+                    //     id : player.getRoomId()
+                    // }
+                    // ws.send(JSON.stringify(msg));
+                    break
+                case "deletedRoom":
+                    // console.log("COMPLETED!");
+                    // ws.close();
+                    break
+                default:
+                    console.log("???");
+            }
+        })
     },
     update() {
         console.log("update room");
@@ -123,15 +170,17 @@ const room = {
             });
     },
 
+    // **用户主动使用按钮调用以下函数**
+
     // 离开房间
     leaveRoom() {
         console.log("Leave room");
-        net.leaveRoom(Room.value.id);
+        roomNetworking.leaveRoom(Room.value.id);
     },
 
     // 切换准备状态
     toggleReady() {
-        net.changeReadyStatus(Room.value.id);
+        roomNetworking.changeReadyStatus(Room.value.id);
     },
 
     // 开始游戏

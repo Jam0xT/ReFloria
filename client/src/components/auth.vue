@@ -32,7 +32,7 @@
 <script setup lang="ts">
 import { global } from '@/src/stores/global.ts';
 import { onMounted, ref } from 'vue';
-import { refreshPubKey, signIn, signUp, clearStorage } from "@/src/scripts/auth.ts";
+import { refreshPubKey, signIn, signUp, clearStorage } from "@/src/networking/auth.ts";
 import gsap from 'gsap';
 
 const store = global();
