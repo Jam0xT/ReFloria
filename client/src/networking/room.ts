@@ -1,4 +1,4 @@
-import { nw } from "@/src/networking.ts";
+import { nw } from "@/src/networking";
 import * as player from "@/src/playerData";
 
 export function createRoom(roomOptions :roomOptions) :void {

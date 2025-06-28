@@ -40,7 +40,7 @@ export const nw = new class {
     }
 }
 
-let store
+// let store
 nw.onOpen(() => {
     console.log('Connected to WebSocket server');
     store = global();
