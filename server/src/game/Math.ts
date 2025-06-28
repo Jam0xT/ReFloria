@@ -56,14 +56,17 @@ export class Vec2 {
     }
 }
 
-abstract class Shape {
+export abstract class Shape {
     protected readonly abstract _type: ShapeType;
+
+    protected constructor() {}
+
     public get type(): ShapeType {
         return this._type;
     }
 }
 
-class Circle extends Shape {
+export class Circle extends Shape {
     _type = ShapeType.CIRCLE;
 
     private readonly _radius: number;
@@ -75,7 +78,7 @@ class Circle extends Shape {
     }
 }
 
-class LineSegment extends Shape {
+export class LineSegment extends Shape {
     _type = ShapeType.LINE_SEGMENT;
 
     private readonly _radius: number;
@@ -91,7 +94,7 @@ class LineSegment extends Shape {
     }
 }
 
-class RegularPolygon extends Shape {
+export class RegularPolygon extends Shape {
     _type = ShapeType.REGULAR_POLYGON;
 
     private readonly _radius: number;
@@ -111,7 +114,7 @@ class RegularPolygon extends Shape {
     }
 }
 
-enum ShapeType {
+export const enum ShapeType {
     CIRCLE,
     LINE_SEGMENT,
     REGULAR_POLYGON,

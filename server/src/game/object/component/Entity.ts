@@ -4,7 +4,25 @@
 import { Vec2 } from '../../Math';
 import Hitbox from './Hitbox';
 
-interface Entity {
+abstract class Entity {
+    protected readonly _hitbox: Hitbox;
+    public get hitbox(): Hitbox {
+        return this._hitbox;
+    }
+
+    private readonly _velocity: Vec2;
+
+    protected constructor(entityOptions: EntityOptions) {
+        this._hitbox = entityOptions.hitbox;
+        this._velocity = Vec2.zero();
+    }
+
+    public resolveCollision(entity: Entity) {
+
+    }
+}
+
+interface EntityOptions {
     hitbox: Hitbox;
 }
 

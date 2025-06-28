@@ -1,0 +1,27 @@
+import Entity from '@/game/object/component/Entity';
+import { Effect, Effectable } from "@/game/object/component/Effect";
+import { Curse, Cursable } from "@/game/object/component/Curse";
+import Hitbox from "@/game/object/component/Hitbox";
+import { Vec2, Circle } from '@/game/Math';
+
+class Player extends Entity
+    implements Effectable, Cursable {
+
+    private _curses: Curse[] = [];
+    public get curses(): Curse[] {
+        return this._curses;
+    }
+
+    constructor(playerOptions: PlayerOptions) {
+        super({
+            hitbox: new Hitbox({
+                position: playerOptions.position,
+                shape: new Circle(1), // NO MAGIC NUMBER
+            }),
+        })
+    }
+}
+
+interface PlayerOptions {
+    position: Vec2;
+}
