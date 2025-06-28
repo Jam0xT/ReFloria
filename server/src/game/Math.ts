@@ -56,6 +56,67 @@ export class Vec2 {
     }
 }
 
+abstract class Shape {
+    protected readonly abstract _type: ShapeType;
+    public get type(): ShapeType {
+        return this._type;
+    }
+}
+
+class Circle extends Shape {
+    _type = ShapeType.CIRCLE;
+
+    private readonly _radius: number;
+    public get radius() { return this._radius; }
+
+    constructor(radius: number) {
+        super();
+        this._radius = radius;
+    }
+}
+
+class LineSegment extends Shape {
+    _type = ShapeType.LINE_SEGMENT;
+
+    private readonly _radius: number;
+    public get radius() { return this._radius; }
+
+    private readonly _slope: number;
+    public get slope() { return this._slope; }
+
+    constructor(radius: number, slope: number) {
+        super();
+        this._radius = radius;
+        this._slope = slope;
+    }
+}
+
+class RegularPolygon extends Shape {
+    _type = ShapeType.REGULAR_POLYGON;
+
+    private readonly _radius: number;
+    public get radius() { return this._radius; }
+
+    private readonly _numSides: number;
+    public get numSides() { return this._numSides; }
+
+    private readonly _direction: number;
+    public get direction() { return this._direction; }
+
+    constructor(radius: number, direction: number, numSides: number) {
+        super();
+        this._radius = radius;
+        this._numSides = numSides;
+        this._direction = direction;
+    }
+}
+
+enum ShapeType {
+    CIRCLE,
+    LINE_SEGMENT,
+    REGULAR_POLYGON,
+}
+
 export function random(min: number, max: number) {
     return Math.random() * (max - min) + min;
 }

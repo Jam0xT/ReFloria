@@ -6,3 +6,8 @@ class Curse {
     // private _isBless: boolean;
 
 }
+
+export {
+    Curse,
+    Cursable,
+}
