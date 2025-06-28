@@ -3,6 +3,9 @@ import nodeRSA from 'node-rsa'
 import signIn from '@/src/auth/signIn';
 import signUp from '@/src/auth/signUp';
 
+import {UserData} from "@/src/room/userData";
+import * as Room from "@/src/room/networking";
+
 const app = App({});
 
 const key = new nodeRSA({ b: 2048 });
@@ -51,6 +54,11 @@ export default function startRouter(port: number) {
             return;
         }
     });
+    app.ws<UserData>('/room', {
+        open: Room.onOpenWebSocket,
+        message: Room.onMessage,
+        close: Room.onCloseWebSocket
+    })
     app.listen(port, (token) => {
         if (token) {
             console.log(`APIs Listening to port: ${port}.`);

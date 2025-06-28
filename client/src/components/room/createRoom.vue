@@ -9,7 +9,7 @@
         <div class="form">
             <div class="form_item">
                 <p class="_font_3">Server Area</p>
-                <select v-model="serverArea">
+                <select v-model="presentRoom.serverArea">
                     <option value="AS">AS</option>
                     <option value="EU">EU</option>
                     <option value="NA">NA</option>
@@ -17,14 +17,14 @@
             </div>
             <div class="form_item">
                 <p class="_font_3">Public Status</p>
-                <select v-model="publicStatus">
+                <select v-model="presentRoom.publicStatus">
                     <option value="Public">Public</option>
                     <option value="Private">Private</option>
                 </select>
             </div>
             <div class="form_item">
                 <p class="_font_3">Players Per Team</p>
-                <select v-model="playersPerTeam">
+                <select v-model="presentRoom.playersPerTeam">
                     <option value="2">2</option>
                     <option value="4">4</option>
                     <option value="8">8</option>
@@ -32,13 +32,13 @@
             </div>
             <div class="form_item">
                 <p class="_font_3">Team Number</p>
-                <select v-model="teamNumber">
+                <select v-model="presentRoom.teamNumber">
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
                 </select>
             </div>
-            <div class="submit_button" @click="createRoom.createRoom">
+            <div class="submit_button" @click="presentRoom.create">
                 <p class="_font_3">Create</p>
             </div>
         </div>
@@ -49,14 +49,9 @@
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
-import * as net from '@/src/networking';
+import {presentRoom} from "@/src/scripts/room";
 
 const store = global();
-
-const serverArea = ref('AS');
-const playersPerTeam = ref('2');
-const teamNumber = ref('2');
-const publicStatus = ref('Public');
 
 const createRoom = {
     container: null as null | HTMLElement,
@@ -118,23 +113,6 @@ const createRoom = {
                 }
             });
     },
-
-    createRoom() {
-        console.log('创建房间:', {
-            serverArea: serverArea.value,
-            playersPerTeam: playersPerTeam.value,
-            teamNumber: teamNumber.value,
-            publicStatus: publicStatus.value,
-        });
-        let roomOptions = {
-            isPublic: (publicStatus.value == "Public"),
-            area: serverArea.value,
-            playerPerTeam: Number(playersPerTeam.value),
-            totalPlayer: Number(playersPerTeam.value) * Number(teamNumber.value)
-        };
-        console.log(roomOptions);
-        net.createRoom(roomOptions);
-    }
 };
 
 onMounted(() => {
