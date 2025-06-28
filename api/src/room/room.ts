@@ -1,5 +1,7 @@
 import * as crypto from 'crypto';
-import { sendMessage, UserData } from "./router";
+import { UserData } from './userData'
+import {wsMap} from "@/src/room/wsMap";
+import {encodeMsg} from "@/src/room/networking";
 
 export class Room {
     private readonly _region: string;//区域
@@ -85,12 +87,12 @@ export class Room {
             if (webSocketID === subjectWebSocketID && subjectWebSocketID) {
                 continue;
             }
-            sendMessage(webSocketID, {
+            wsMap[webSocketID].send(encodeMsg({
                 type : "updateRoomStatus",
                 options : {
                     room : this.data()
                 }
-            });
+            }))
         }
     }
 
@@ -99,12 +101,12 @@ export class Room {
         room.addPlayer(creatorUserData.webSocketID);
         Room.rooms[room.id] = room;
         creatorUserData.roomID = room.id;
-        sendMessage(creatorUserData.webSocketID, {
-            type: "createdRoom",
+        wsMap[creatorUserData.webSocketID].send(encodeMsg({
+            type: "createRoom",
             options: {
                 room: room.data()
             }
-        });
+        }))
         return true;
     }
 
@@ -121,12 +123,12 @@ export class Room {
             return false;
         room.addPlayer(joinerUserData.webSocketID);
         joinerUserData.roomID = room.id;
-        sendMessage(joinerUserData.webSocketID, {
+        wsMap[joinerUserData.webSocketID].send(encodeMsg({
             type: "joinedRoom",
             options: {
                 room: room.data()
             }
-        });
+        }))
         room.broadcastUpdate(joinerUserData.webSocketID);
         return true;
     }
@@ -142,10 +144,10 @@ export class Room {
         if ( room.isEmpty )
             Room.destroy(room.id);
         leaverUserData.roomID = '';
-        sendMessage(leaverUserData.webSocketID, {
+        wsMap[leaverUserData.webSocketID].send(encodeMsg({
             type: 'leftRoom',
             options: {}
-        });
+        }))
         room.broadcastUpdate(leaverUserData.webSocketID);
         return true;
     }

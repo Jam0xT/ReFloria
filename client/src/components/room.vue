@@ -1,19 +1,19 @@
 <template>
     <div class="room _fullscreen" v-show="room.visible.value">
         <div class="header">
-            <div class="back_button" @click="room.leaveRoom">
+            <div class="back_button" @click="presentRoom.leave">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
             </div>
             <div class="room_info">
-                <p class="_font_3">Room: {{ Room?.id ?? "" }}</p>
-                <p class="_font_2">Players: {{ nowPlayers }}/{{ maxPlayers }}</p>
+                <p class="_font_3">Room: {{ presentRoom.id ?? "" }}</p>
+                <p class="_font_2">Players: {{ presentRoom.nowPlayers }}/{{ presentRoom.maxPlayers }}</p>
             </div>
         </div>
 
         <div class="player_list">
-            <div class="player_item" v-for="(player, index) in players" :key="index">
+            <div class="player_item" v-for="(player, index) in presentRoom.players" :key="index">
                 <div class="player_avatar"></div>
                 <p class="_font_2">{{ player.name }}</p>
                 <div class="player_status" :class="{ ready: player.ready }">
@@ -23,10 +23,10 @@
         </div>
 
         <div class="controls">
-            <div class="ready_button" @click="room.toggleReady">
-                <p class="_font_3">{{ isReady ? 'Not ready' : 'Ready' }}</p>
+            <div class="ready_button" @click="presentRoom.changeReadyStatus()">
+                <p class="_font_3">{{ presentRoom.client.isReady ? 'Not ready' : 'Ready' }}</p>
             </div>
-            <div class="start_button" v-if="isHost" @click="room.startGame">
+            <div class="start_button" v-if="presentRoom.client.isHost" @click="presentRoom.startGame">
                 <p class="_font_3">Start</p>
             </div>
         </div>
@@ -36,23 +36,10 @@
 <script setup lang="ts">
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
-import * as roomNetworking from '@/src/networking/room.ts'
-import * as player from '@/src/playerData';
 import gsap from 'gsap';
-import { nw } from '@/src/networking';
+import {presentRoom} from "@/src/scripts/room.ts";
 
 const store = global();
-
-// 模拟数据 - 实际应从服务器获取
-const Room = ref<T>();
-const nowPlayers = ref(2);
-const maxPlayers = ref(4);
-const isHost = ref(true);
-const isReady = ref(false);
-const players = ref([
-    {name: 'Player 1', ready: true},
-    {name: 'Player 2', ready: false}
-]);
 
 const room = {
     container: null as null | HTMLElement,
@@ -66,71 +53,13 @@ const room = {
         this.header = document.querySelector('.header');
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
+    },
 
-        nw.onMessage((event) => {
-            const data = JSON.parse(event.data);
-            switch (data.type) {
-                case "setId":
-                    player.setId(data.options.id);
-                    break
-                case "createdRoom":
-                    let room = data.options.room;
-                    player.setRoom(room);
-                    store.hide_createRoom(null,() => {
-                        store.show_room();
-                    });
-                    break
-                case "joinedRoom":
-                    player.setRoom(data.options.room);
-                    store.hide_joinRoom(null,() => {
-                        store.show_room();
-                    });
-                    break
-                case "leftRoom":
-                    player.setRoom(null);
-                    store.hide_room(null, () => {
-                        store.show_start();
-                    });
-                    break
-                case "updateRoomStatus":
-                    let room = data.options.room;
-                    player.setRoom(room);
-                    store.update_room();
-                    break
-                case "changedRoomPublicStatus":
-                    // let msg: {type : string ; id : string} = {
-                    //     type : "deleteRoom",
-                    //     id : player.getRoomId()
-                    // }
-                    // ws.send(JSON.stringify(msg));
-                    break
-                case "deletedRoom":
-                    // console.log("COMPLETED!");
-                    // ws.close();
-                    break
-                default:
-                    console.log("???");
-            }
-        })
-    },
-    update() {
-        console.log("update room");
-        Room.value = player.getRoom();
-        nowPlayers.value = Object.keys(Room.value.players).length;
-        maxPlayers.value = Room.value.totalPlayer;
-        isReady.value = Room.value.players[player.getId()].isReady;
-        players.value = [];
-        for (let player in Room.value.players) {
-            players.value.push({name: player, ready: Room.value.players[player].isReady});
-        }
-        console.log(nowPlayers.value);
-    },
     show() {
         if (this.animator?.isActive()) {
             return;
         }
         console.log("show room");
-        this.update();
         this.visible.value = true;
         this.animator = gsap.timeline()
             .to(this.header, {
@@ -169,30 +98,6 @@ const room = {
                 }
             });
     },
-
-    // **用户主动使用按钮调用以下函数**
-
-    // 离开房间
-    leaveRoom() {
-        console.log("Leave room");
-        roomNetworking.leaveRoom(Room.value.id);
-    },
-
-    // 切换准备状态
-    toggleReady() {
-        roomNetworking.changeReadyStatus(Room.value.id);
-    },
-
-    // 开始游戏
-    startGame() {
-        // 这里应该调用API开始游戏
-        console.log('开始游戏');
-
-        this.hide(null, () => {
-            // 这里应该跳转到游戏界面
-            // store.show_game();
-        });
-    }
 };
 
 onMounted(() => {

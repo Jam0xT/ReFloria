@@ -9,9 +9,9 @@
         <div class="form">
             <div class="form_item">
                 <p class="_font_3">Room Id</p>
-                <input type="text" v-model="roomId" placeholder="">
+                <input type="text" v-model="presentRoom.id" placeholder="">
             </div>
-            <div class="submit_button" @click="joinRoom.joinRoom">
+            <div class="submit_button" @click="presentRoom.join">
                 <p class="_font_3">Join</p>
             </div>
         </div>
@@ -22,11 +22,9 @@
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
-import * as net from '@/src/networking';
+import {presentRoom} from "@/src/scripts/room";
 
 const store = global();
-
-const roomId = ref('');
 
 const joinRoom = {
     container: null as null | HTMLElement,
@@ -88,14 +86,6 @@ const joinRoom = {
                 }
             });
     },
-
-    // 加入房间逻辑（留给你实现）
-    joinRoom() {
-        console.log('加入房间:', {
-            roomId: roomId.value,
-        });
-        net.joinRoom(roomId.value);
-    }
 };
 
 onMounted(() => {
