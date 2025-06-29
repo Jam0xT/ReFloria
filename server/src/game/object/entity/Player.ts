@@ -1,7 +1,7 @@
-import Entity from '@/game/object/component/Entity';
+import Entity from '@/game/object/Entity';
 import { Effect, Effectable } from "@/game/object/component/Effect";
 import { Curse, Cursable } from "@/game/object/component/Curse";
-import Hitbox from "@/game/object/component/Hitbox";
+import Hitbox from "@/game/object/Hitbox";
 import { Vec2, Circle } from '@/game/Math';
 
 class Player extends Entity
