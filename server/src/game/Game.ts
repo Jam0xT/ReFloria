@@ -37,24 +37,18 @@ class Game {
         return game;
     }
 
-    public readonly entities: Entity[] = [];
-
-    private readonly _mainLoop: Loop;
-
-    private _initialized = false;
-
     private constructor(options: GameOptions) {
         this._mainLoop = new Loop(this.tick.bind(this), options.ticksPerSecond);
     }
 
-    public init() {
-        this._initialized = true;
-        return this;
-    }
+    public readonly entities: Entity[] = [];
+
+    private readonly _mainLoop: Loop;
 
     public startMainLoop() {
         if (!this._initialized) {
-            throw new Error('Game: Attempt to start Main Loop before initialization.');
+            console.error('Game: Attempt to start Main Loop before initialization.');
+            return null;
         }
         this._mainLoop.start().then(() => {console.log('Main Loop ended.');});
         return this;
@@ -66,6 +60,13 @@ class Game {
         }
         console.log('Attempting to end Main Loop.');
         this._mainLoop.end();
+    }
+
+    private _initialized = false;
+
+    public init() {
+        this._initialized = true;
+        return this;
     }
 
     private tick() {

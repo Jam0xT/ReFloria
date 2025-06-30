@@ -31,7 +31,7 @@ abstract class Entity {
         // do some magic and get all the collisions
 
         collisions.forEach(collision => {
-
+            // apply some physics
         });
     }
 }
