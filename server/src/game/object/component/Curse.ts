@@ -1,9 +1,15 @@
 interface Cursable {
-    curses: Curse[];
 }
 
 class Curse {
-    // private _isBless: boolean;
+    private static _isReady = false;
+    public static get isReady() { return Curse._isReady; }
+
+    public static async readResources() {
+    }
+
+    private static cursePool: Record<string, Curse>;
+    constructor() {}
 
 }
 

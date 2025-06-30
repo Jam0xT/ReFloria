@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import Config from './config';
 import { startRouter } from './router';
+import { Game } from './game/Game';
 import * as process from "node:process";
 
 const configFilePath = path.join(__dirname, '..', 'config.json');
@@ -23,6 +24,7 @@ fs.readFile(configFilePath, 'utf8', (err, data) => {
          */
         console.log('Successfully read config file.');
         startRouter(config);
+        Game.readResources();
     } catch (err) {
         console.error(`Error reading config file at ${configFilePath}: ${err}`);
         return ;

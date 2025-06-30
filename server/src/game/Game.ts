@@ -1,24 +1,55 @@
 import Entity from '@/game/object/Entity';
 import { Loop } from '@/game/Time';
-
-interface GameOptions {
-    ticksPerSecond: number;
-}
-
+import { Curse } from '@/game/object/component/Curse';
+import {Effect} from "@/game/object/component/Effect";
 
 class Game {
+    public static games: Record<string, Game> = {};
+
+    // Game is ready when all game resources are read.
+    private static _isReady = false;
+    public static get isReady() {return Game._isReady;}
+
+    public static readResources() {
+        console.log('Reading Curse resources.')
+        Curse.readResources()
+            .then(() => {
+                console.log('Successfully read Curse resources.');
+                console.log('Reading Effect resources.');
+                return Effect.readResources();
+            })
+            .finally(() => {
+                console.log('All game resources are read.');
+                Game._isReady = true;
+            })
+            .catch((err: unknown) => {
+                console.error(`Error reading game resources: ${err}`);
+            });
+    }
+
+    public static create(gameID: string, options: GameOptions) {
+        if (!Game.isReady) {
+            console.log('Attempting to create Game before resources are read.')
+            return null;
+        }
+        const game = new Game(options);
+        Game.games[gameID] = game;
+        return game;
+    }
+
     public readonly entities: Entity[] = [];
 
     private readonly _mainLoop: Loop;
 
     private _initialized = false;
 
-    constructor(gameOptions: GameOptions) {
-        this._mainLoop = new Loop(this.tick.bind(this), gameOptions.ticksPerSecond);
+    private constructor(options: GameOptions) {
+        this._mainLoop = new Loop(this.tick.bind(this), options.ticksPerSecond);
     }
 
     public init() {
         this._initialized = true;
+        return this;
     }
 
     public startMainLoop() {
@@ -26,6 +57,7 @@ class Game {
             throw new Error('Game: Attempt to start Main Loop before initialization.');
         }
         this._mainLoop.start().then(() => {console.log('Main Loop ended.');});
+        return this;
     }
 
     public endMainLoop() {
@@ -37,10 +69,15 @@ class Game {
     }
 
     private tick() {
-
+        Entity.resolveCollisions(this);
     }
-
-    private resolveCollisions() {}
 }
 
-export default Game;
+interface GameOptions {
+    ticksPerSecond: number;
+}
+
+export {
+    Game,
+    GameOptions,
+};

@@ -3,7 +3,7 @@
  */
 import { Vec2 } from '@/game/Math';
 import Hitbox from '@/game/object/Hitbox';
-import Game from '@/game/Game'
+import { Game } from '@/game/Game'
 
 abstract class Entity {
     protected readonly _hitbox: Hitbox;
@@ -12,7 +12,7 @@ abstract class Entity {
     }
 
     private readonly _velocity: Vec2;
-    public get  velocity(): Vec2 {
+    public get velocity(): Vec2 {
         return this._velocity;
     }
 
@@ -22,17 +22,19 @@ abstract class Entity {
     }
 
     // somehow detect all the collisions and put them in a CollisionInstance[]
-    public static detectCollisions(game: Game): CollisionInstance[] {
+    public static resolveCollisions(game: Game) {
         const entities = game.entities;
-        return [];
-    }
 
-    public resolveCollision(entity: Entity) {
+        type CollisionInstance = [Entity, Entity];
+        const collisions: CollisionInstance[] = [];
 
+        // do some magic and get all the collisions
+
+        collisions.forEach(collision => {
+
+        });
     }
 }
-
-type CollisionInstance = [Entity, Entity];
 
 interface EntityOptions {
     hitbox: Hitbox;
