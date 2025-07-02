@@ -1,7 +1,8 @@
-export function encode(msg: Object): ArrayBuffer {
-    return
+export function encode(msg: Object): string {
+    return JSON.stringify(msg)
 }
 
 export function decode(buffer: ArrayBuffer): Object {
-    return
+    console.log(buffer)
+    return JSON.parse(buffer)
 }

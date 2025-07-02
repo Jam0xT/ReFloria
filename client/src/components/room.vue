@@ -38,6 +38,8 @@ import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
 import {presentRoom} from "@/src/scripts/room.ts";
+import {decode} from "@/src/compress";
+import {client} from "@/src/clientData";
 
 const store = global();
 
@@ -53,6 +55,51 @@ const room = {
         this.header = document.querySelector('.header');
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
+
+
+        presentRoom.ws.onmessage = (event) => {
+            const data = decode(event.data);
+            switch (data.type) {
+                case "setId":
+                    client.playerName = data.options.id
+                    break
+                case "createdRoom":
+                    //let room = data.options.room; /* UNUSED PARAMETER */
+                    store.hide_room(null, () => {
+                        store.show_room();
+                    })
+                    break
+                case "joinedRoom":
+                    //let room = data.options.room /* UNUSED PARAMETER */
+                    store.hide_joinRoom(null,() => {
+                        store.show_room();
+                    });
+                    break
+                case "leftRoom":
+                    presentRoom.id = null
+                    store.hide_room(null, () => {
+                        store.show_start();
+                    });
+                    break
+                case "updateRoomStatus":
+                    //let room = data.options.room; /* UNUSED PARAMETER */
+                    store.update_room();
+                    break
+                case "changedRoomPublicStatus":
+                    // let msg: {type : string ; id : string} = {
+                    //     type : "deleteRoom",
+                    //     id : player.getRoomId()
+                    // }
+                    // ws.send(JSON.stringify(msg));
+                    break
+                case "deletedRoom":
+                    // console.log("COMPLETED!");
+                    // ws.close();
+                    break
+                default:
+                    console.log("???");
+            }
+        }
     },
 
     show() {
@@ -106,7 +153,7 @@ onMounted(() => {
 
 store.show_room = room.show.bind(room);
 store.hide_room = room.hide.bind(room);
-store.update_room = room.update.bind(room);
+
 </script>
 
 <style scoped>
