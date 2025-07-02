@@ -1,10 +1,7 @@
 import { roomOptions } from "@/src/type";
 import {encode, decode} from "@/src/compress";
 import {ref} from "vue";
-import {client} from "@/src/clientData";
-import {global} from "@/src/stores/global";
-
-const store = global()
+import config from "@/src/config";
 
 export const presentRoom = {
     // 模拟数据 - 实际应从服务器获取
@@ -23,7 +20,7 @@ export const presentRoom = {
         {name: 'Player 1', ready: true},
         {name: 'Player 2', ready: false}
     ]),
-    ws: new WebSocket('ws://localhost:9001/ws'),
+    ws: new WebSocket(`ws://${config.API}/room`),
 
     create() {
         let msg : {type:string,options:roomOptions} = {
@@ -64,49 +61,5 @@ export const presentRoom = {
 
     startGame() {
 
-    }
-}
-
-presentRoom.ws.onmessage = (event) => {
-    const data = decode(event.data);
-    switch (data.type) {
-        case "setId":
-            client.playerName = data.options.id
-            break
-        case "createdRoom":
-            let room = data.options.room; /* UNUSED PARAMETER */
-            store.hide_createRoom(null,() => {
-                store.show_room();
-            });
-            break
-        case "joinedRoom":
-            let room = data.options.room /* UNUSED PARAMETER */
-            store.hide_joinRoom(null,() => {
-                store.show_room();
-            });
-            break
-        case "leftRoom":
-            presentRoom.id = null
-            store.hide_room(null, () => {
-                store.show_start();
-            });
-            break
-        case "updateRoomStatus":
-            let room = data.options.room; /* UNUSED PARAMETER */
-            store.update_room();
-            break
-        case "changedRoomPublicStatus":
-            // let msg: {type : string ; id : string} = {
-            //     type : "deleteRoom",
-            //     id : player.getRoomId()
-            // }
-            // ws.send(JSON.stringify(msg));
-            break
-        case "deletedRoom":
-            // console.log("COMPLETED!");
-            // ws.close();
-            break
-        default:
-            console.log("???");
     }
 }

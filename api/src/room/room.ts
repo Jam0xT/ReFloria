@@ -102,7 +102,7 @@ export class Room {
         Room.rooms[room.id] = room;
         creatorUserData.roomID = room.id;
         wsMap[creatorUserData.webSocketID].send(encodeMsg({
-            type: "createRoom",
+            type: "createdRoom",
             options: {
                 room: room.data()
             }
