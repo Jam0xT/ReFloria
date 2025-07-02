@@ -10,24 +10,43 @@ export const presentRoom = {
         isReady: ref(false)
     },
     id: ref(''),
-    serverArea: ref('AS'),
-    playersPerTeam: ref('2'),
-    teamNumber: ref('2'),
+    region: ref('AS'),
+    playersPerTeam: ref(2),
+    teamNumber: ref(2),
     publicStatus: ref('Public'),
-    nowPlayers: ref(2),
+    nowPlayers: ref(-1),
     maxPlayers: ref(4),
     players: ref([
-        {name: 'Player 1', ready: true},
-        {name: 'Player 2', ready: false}
+        {name: 'Nerd1', ready: true},
+        {name: 'Nerd2', ready: false}
     ]),
     ws: new WebSocket(`ws://${config.API}/room`),
+    update(nowRoom) : void {
+        if(!nowRoom)
+        {
+            this.id.value="Nerd No Room";
+            return ;
+        }
+        this.id.value=nowRoom.id;
+        this.region.value = nowRoom.region;
+        this.playersPerTeam.value = nowRoom.playersPerTeam;
+        this.teamNumber.value = nowRoom.totalPlayer/nowRoom.playersPerTeam;
+        this.publicStatus.value = nowRoom.isPublic;
+        this.nowPlayers.value = nowRoom.nowPlayer;
+        this.maxPlayers.value = nowRoom.totalPlayer;
+        this.players.value=[];
+        for(let id in nowRoom.players){
+            this.players.value.push({name : nowRoom.players[id].name,ready : nowRoom.players[id].isReady});
+        }
+        console.log(this.players.value.length);
+    },
 
     create() {
         let msg : {type:string,options:roomOptions} = {
             type : "createRoom",
             options : {
                 isPublic: this.publicStatus.value,
-                area : this.serverArea.value,
+                area : this.region.value,
                 totalPlayer : Number(this.playersPerTeam.value) * Number(this.teamNumber.value),
                 playerPerTeam : Number(this.playersPerTeam.value)
             },
