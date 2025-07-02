@@ -9,7 +9,7 @@
         <div class="form">
             <div class="form_item">
                 <p class="_font_3">Server Area</p>
-                <select v-model="presentRoom.serverArea">
+                <select v-model="presentRoom.region.value">
                     <option value="AS">AS</option>
                     <option value="EU">EU</option>
                     <option value="NA">NA</option>
@@ -17,14 +17,14 @@
             </div>
             <div class="form_item">
                 <p class="_font_3">Public Status</p>
-                <select v-model="presentRoom.publicStatus">
+                <select v-model="presentRoom.publicStatus.value">
                     <option value="Public">Public</option>
                     <option value="Private">Private</option>
                 </select>
             </div>
             <div class="form_item">
                 <p class="_font_3">Players Per Team</p>
-                <select v-model="presentRoom.playersPerTeam">
+                <select v-model="presentRoom.playersPerTeam.value">
                     <option value="2">2</option>
                     <option value="4">4</option>
                     <option value="8">8</option>
@@ -32,7 +32,7 @@
             </div>
             <div class="form_item">
                 <p class="_font_3">Team Number</p>
-                <select v-model="presentRoom.teamNumber">
+                <select v-model="presentRoom.teamNumber.value">
                     <option value="2">2</option>
                     <option value="3">3</option>
                     <option value="4">4</option>
@@ -89,9 +89,6 @@ const createRoom = {
     },
 
     hide(immediate?: Function, next?: Function) {
-        if (this.animator?.isActive()) {
-            return;
-        }
         console.log("hide createRoom");
         if (immediate) immediate();
 

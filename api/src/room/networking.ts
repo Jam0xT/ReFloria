@@ -21,6 +21,7 @@ export function onMessage(ws: WebSocket<UserData>, msg: ArrayBuffer) {
     const userData = ws.getUserData();
     const parsedMsg: any = decodeMsg(msg)
     console.log(`Received and parsed message from ${userData.webSocketID}: ${parsedMsg}`);
+    console.log(parsedMsg.type);
     switch (parsedMsg.type) {
         case 'createRoom': {
             Room.create(parsedMsg.options, userData);

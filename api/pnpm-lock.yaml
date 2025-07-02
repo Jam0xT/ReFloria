@@ -17,6 +17,12 @@ importers:
       uuid:
         specifier: ^11.1.0
         version: 11.1.0
+      xxx:
+        specifier: ^0.0.1
+        version: 0.0.1
+      xxxxx:
+        specifier: ^1.0.3
+        version: 1.0.3
     devDependencies:
       '@types/node':
         specifier: ^24.0.0
@@ -148,6 +154,12 @@ packages:
   v8-compile-cache-lib@3.0.1:
     resolution: {integrity: sha512-wa7YjyUGfNZngI/vtK0UHAN+lgDCxBPCylVXGp0zu59Fz5aiGtNXaq3DhIov063MorB+VfufLh3JlF2KdTK3xg==}
 
+  xxx@0.0.1:
+    resolution: {integrity: sha512-v4lqN2YhlmyKFmdA6OobGeeyja9A1vAgaCDQvmGmtrlOHXbW9uBuAFI2jGV/6LUg6QncxhZeb3yrfwP25680tQ==}
+
+  xxxxx@1.0.3:
+    resolution: {integrity: sha512-7xvDx4T6J7Yx2V3Bjgz/bWdmaK4UnciiNH4uaWENElZ3EzdCU6+GGFpYVD/NRsSSfuNhLrz18Ma2nQ9WGmz2FQ==}
+
   yn@3.1.1:
     resolution: {integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==}
     engines: {node: '>=6'}
@@ -246,5 +258,9 @@ snapshots:
   uuid@11.1.0: {}
 
   v8-compile-cache-lib@3.0.1: {}
+
+  xxx@0.0.1: {}
+
+  xxxxx@1.0.3: {}
 
   yn@3.1.1: {}

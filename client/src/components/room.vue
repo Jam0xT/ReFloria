@@ -13,7 +13,7 @@
         </div>
 
         <div class="player_list">
-            <div class="player_item" v-for="(player, index) in presentRoom.players" :key="index">
+            <div class="player_item" v-for="(player, index) in presentRoom.players.value" :key="index">
                 <div class="player_avatar"></div>
                 <p class="_font_2">{{ player.name }}</p>
                 <div class="player_status" :class="{ ready: player.ready }">
@@ -56,34 +56,33 @@ const room = {
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
 
-
         presentRoom.ws.onmessage = (event) => {
             const data = decode(event.data);
+            let nowRoom;
             switch (data.type) {
                 case "setId":
                     client.playerName = data.options.id
                     break
                 case "createdRoom":
-                    //let room = data.options.room; /* UNUSED PARAMETER */
-                    store.hide_room(null, () => {
+                    nowRoom = data.options.room; /* UNUSED PARAMETER */
+                    store.hide_createRoom(null, () => {
                         store.show_room();
                     })
                     break
                 case "joinedRoom":
-                    //let room = data.options.room /* UNUSED PARAMETER */
+                    nowRoom = data.options.room /* UNUSED PARAMETER */
                     store.hide_joinRoom(null,() => {
                         store.show_room();
                     });
                     break
                 case "leftRoom":
-                    presentRoom.id = null
+                    nowRoom = null
                     store.hide_room(null, () => {
                         store.show_start();
                     });
                     break
                 case "updateRoomStatus":
-                    //let room = data.options.room; /* UNUSED PARAMETER */
-                    store.update_room();
+                    nowRoom = data.options.room; /* UNUSED PARAMETER */
                     break
                 case "changedRoomPublicStatus":
                     // let msg: {type : string ; id : string} = {
@@ -99,6 +98,8 @@ const room = {
                 default:
                     console.log("???");
             }
+            console.log(typeof presentRoom.region);
+            presentRoom.update(nowRoom);
         }
     },
 
@@ -129,7 +130,7 @@ const room = {
 
     hide(immediate?: Function, next?: Function) {
         if (this.animator?.isActive()) {
-            return;
+            this.animator.kill();
         }
         if (immediate) immediate();
 

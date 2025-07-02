@@ -40,6 +40,8 @@ export class Room {
             nowPlayer: Object.keys(this.players).length,
             id: this._id,
             players: this._players,
+            region: this._region,
+            playersPerTeam: this._maxPlayerCountPerTeam,
         };
     }
 
@@ -54,6 +56,7 @@ export class Room {
 
     addPlayer(WebSocketID: string) {
         const currentPlayerCount = Object.keys(this.players).length;
+        console.log(currentPlayerCount);
         if ( currentPlayerCount < this.maxPlayerCount ) {
             if ( currentPlayerCount === this.maxPlayerCount - 1 ) {
                 this.isFull = true;
