@@ -24,11 +24,11 @@ export function onMessage(ws: WebSocket<UserData>, msg: ArrayBuffer) {
     console.log(parsedMsg.type);
     switch (parsedMsg.type) {
         case 'createRoom': {
-            Room.create(parsedMsg.options, userData);
+            Room.create(parsedMsg.options, parsedMsg.nickName, userData);
             break;
         }
         case 'joinRoom': {
-            Room.join(parsedMsg.id, userData);
+            Room.join(parsedMsg.id, parsedMsg.nickName, userData);
             break;
         }
         case 'leaveRoom': {

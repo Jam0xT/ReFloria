@@ -11,6 +11,10 @@
                 <p class="_font_3">Room Id</p>
                 <input type="text" v-model="presentRoom.id.value" placeholder="">
             </div>
+            <div class="form_item">
+                <p class="_font_3">Nickname</p>
+                <input type="text" v-model="presentRoom.nickName.value" placeholder="flower">
+            </div>
             <div class="submit_button" @click="presentRoom.join">
                 <p class="_font_3">Join</p>
             </div>

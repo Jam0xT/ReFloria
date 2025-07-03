@@ -54,7 +54,7 @@ export class Room {
         this._players = {};
     }
 
-    addPlayer(WebSocketID: string) {
+    addPlayer(WebSocketID: string,nickName : string) {
         const currentPlayerCount = Object.keys(this.players).length;
         console.log(currentPlayerCount);
         if ( currentPlayerCount < this.maxPlayerCount ) {
@@ -63,7 +63,7 @@ export class Room {
             }
             this.players[WebSocketID] = new Player({
                 webSocketID: WebSocketID,
-                name: WebSocketID,
+                name: nickName,
                 isReady: false,
             });
             this.isEmpty = false;
@@ -97,9 +97,9 @@ export class Room {
         }
     }
 
-    static create(options: roomOptions, creatorUserData: UserData) {
+    static create(options: roomOptions,nickName : string, creatorUserData: UserData) {
         const room = new Room(options);
-        room.addPlayer(creatorUserData.webSocketID);
+        room.addPlayer(creatorUserData.webSocketID,nickName);
         Room.rooms[room.id] = room;
         creatorUserData.roomID = room.id;
         wsMap[creatorUserData.webSocketID].send(encodeMsg({
@@ -114,14 +114,14 @@ export class Room {
         delete Room.rooms[roomID];
     }
 
-    static join(roomID: string, joinerUserData: UserData) {
+    static join(roomID: string, nickName: string, joinerUserData: UserData) {
         const room = Room.rooms[roomID];
         if (!room)
             return false;
         const players = room.players;
         if ((joinerUserData.webSocketID in players) || room.isFull)
             return false;
-        room.addPlayer(joinerUserData.webSocketID);
+        room.addPlayer(joinerUserData.webSocketID,nickName);
         joinerUserData.roomID = room.id;
         wsMap[joinerUserData.webSocketID].send(encodeMsg({
             type: "joinedRoom",

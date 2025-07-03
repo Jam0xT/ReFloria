@@ -11,6 +11,7 @@ export const presentRoom = {
         isReady: ref(false)
     },
     id: ref(''),
+    nickName : ref('flower'),
     region: ref('AS'),
     playersPerTeam: ref(2),
     teamNumber: ref(2),
@@ -55,6 +56,7 @@ export const presentRoom = {
                 totalPlayer : Number(this.playersPerTeam.value) * Number(this.teamNumber.value),
                 playerPerTeam : Number(this.playersPerTeam.value)
             },
+            nickName : this.nickName.value
         }
         this.ws.send(encode(msg));
     },
@@ -62,7 +64,8 @@ export const presentRoom = {
     join() {
         let msg: {type:string,id:string} = {
             type : "joinRoom",
-            id : this.id.value
+            id : this.id.value,
+            nickName : this.nickName.value
         }
         this.ws.send(encode(msg));
     },
