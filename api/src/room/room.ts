@@ -87,13 +87,11 @@ export class Room {
 
     broadcastUpdate(subjectWebSocketID?: string) {
         for (let webSocketID in this.players) {
-            if (webSocketID === subjectWebSocketID && subjectWebSocketID) {
-                continue;
-            }
             wsMap[webSocketID].send(encodeMsg({
                 type : "updateRoomStatus",
                 options : {
-                    room : this.data()
+                    room: this.data(),
+                    me: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
                 }
             }))
         }
@@ -106,10 +104,9 @@ export class Room {
         creatorUserData.roomID = room.id;
         wsMap[creatorUserData.webSocketID].send(encodeMsg({
             type: "createdRoom",
-            options: {
-                room: room.data()
-            }
+            options: {}
         }))
+        room.broadcastUpdate(creatorUserData.webSocketID);
         return true;
     }
 
@@ -128,9 +125,7 @@ export class Room {
         joinerUserData.roomID = room.id;
         wsMap[joinerUserData.webSocketID].send(encodeMsg({
             type: "joinedRoom",
-            options: {
-                room: room.data()
-            }
+            options: {}
         }))
         room.broadcastUpdate(joinerUserData.webSocketID);
         return true;
@@ -147,10 +142,12 @@ export class Room {
         if ( room.isEmpty )
             Room.destroy(room.id);
         leaverUserData.roomID = '';
-        wsMap[leaverUserData.webSocketID].send(encodeMsg({
-            type: 'leftRoom',
-            options: {}
-        }))
+        if (wsMap[leaverUserData.webSocketID]) {
+            wsMap[leaverUserData.webSocketID].send(encodeMsg({
+                type: 'leftRoom',
+                options: {}
+            }))
+        }
         room.broadcastUpdate(leaverUserData.webSocketID);
         return true;
     }

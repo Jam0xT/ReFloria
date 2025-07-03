@@ -2,6 +2,7 @@ import { roomOptions } from "@/src/type";
 import {encode, decode} from "@/src/compress";
 import {ref} from "vue";
 import config from "@/src/config";
+import {client} from "@/src/clientData";
 
 export const presentRoom = {
     // 模拟数据 - 实际应从服务器获取
@@ -17,11 +18,13 @@ export const presentRoom = {
     nowPlayers: ref(-1),
     maxPlayers: ref(4),
     players: ref([
-        {name: 'Nerd1', ready: true},
-        {name: 'Nerd2', ready: false}
+        {name: 'Nerd1', isReady: true},
+        {name: 'Nerd2', isReady: false}
     ]),
     ws: new WebSocket(`ws://${config.API}/room`),
-    update(nowRoom) : void {
+    update(options) : void {
+        const nowRoom = options.room;
+        const me = options.me;
         if(!nowRoom)
         {
             this.id.value="Nerd No Room";
@@ -36,9 +39,11 @@ export const presentRoom = {
         this.maxPlayers.value = nowRoom.totalPlayer;
         this.players.value=[];
         for(let id in nowRoom.players){
-            this.players.value.push({name : nowRoom.players[id].name,ready : nowRoom.players[id].isReady});
+            this.players.value.push({name : nowRoom.players[id].name,isReady : nowRoom.players[id].isReady});
         }
-        console.log(this.players.value.length);
+        this.client.name = me.name
+        this.client.isReady = me.isReady
+
     },
 
     create() {
