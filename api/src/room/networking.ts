@@ -52,6 +52,7 @@ export function onMessage(ws: WebSocket<UserData>, msg: ArrayBuffer) {
 export function onCloseWebSocket(ws: WebSocket<UserData>) {
     const userData = ws.getUserData();
     const roomID = userData.roomID;
+    delete wsMap[userData.webSocketID];
     Room.leave(roomID, userData);
     console.log(`WebSocket connection with ${userData.webSocketID} closed.`);
 }
