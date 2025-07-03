@@ -38,6 +38,10 @@
                     <option value="4">4</option>
                 </select>
             </div>
+            <div class="form_item">
+                <p class="_font_3">Nickname</p>
+                <input type="text" v-model="presentRoom.nickName.value" placeholder="flower">
+            </div>
             <div class="submit_button" @click="presentRoom.create">
                 <p class="_font_3">Create</p>
             </div>
