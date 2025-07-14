@@ -7,10 +7,7 @@ import { Vec2, Circle } from '@/game/Math';
 class Player extends Entity
     implements Effectable, Cursable {
 
-    private _curses: Curse[] = [];
-    public get curses(): Curse[] {
-        return this._curses;
-    }
+    public curseLevels: number[] = [];
 
     constructor(playerOptions: PlayerOptions) {
         super({
