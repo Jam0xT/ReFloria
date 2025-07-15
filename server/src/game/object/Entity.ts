@@ -1,5 +1,5 @@
 /*
-定义：我们称一个控制碰撞箱对碰撞事件产生物理反应的对象为实体。
+An Entity is what collides with and applies physics to other entities.
  */
 import { Vec2 } from '@/game/Math';
 import Hitbox from '@/game/object/Hitbox';
@@ -21,14 +21,20 @@ abstract class Entity {
         this._velocity = Vec2.zero();
     }
 
-    // somehow detect all the collisions and put them in a CollisionInstance[]
+    /*
+    more notes...
+    when (two) entities (A, B) collide, 2 things should happen:
+    1. physics should be applied, since all entities are involved in the physics system
+    2. two DamageInstance s should be created, one pointing toward B, the other toward A.
+        all entities can be damaged, though some of them might be invulnerable and won't actually take damage
+     */
     public static resolveCollisions(game: Game) {
         const entities = game.entities;
 
         type CollisionInstance = [Entity, Entity];
         const collisions: CollisionInstance[] = [];
 
-        // do some magic and get all the collisions
+        // do some magic, get all the collisions and put them in a CollisionInstance[]
 
         collisions.forEach(collision => {
             // apply some physics
@@ -38,6 +44,29 @@ abstract class Entity {
 
 interface EntityOptions {
     hitbox: Hitbox;
+    physicalAttributes: PhysicalAttributes;
+
+    // a ghost entity will not be involved in ANY collision, e.g. player in spectator mode
+    isGhost: boolean;
 }
 
-export default Entity;
+interface PhysicalAttributes {
+    // just to name a few but some of them might be actually useless
+    mass: number;
+    movement_friction: number;
+    knockback: number;
+    elasticity: number;
+}
+
+class DamageInstance {
+    public static create(game: Game, source: Entity, target: Entity) {
+
+    }
+    private constructor() {}
+}
+
+export {
+    Entity,
+    PhysicalAttributes,
+    DamageInstance,
+}
