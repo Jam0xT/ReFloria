@@ -58,11 +58,25 @@ interface PhysicalAttributes {
     elasticity: number;
 }
 
+/*
+A DamageInstance represents the damage event FROM source entity TO target entity
+it only stores information and does nothing else until resolve() is called
+ */
 class DamageInstance {
+    // creates a DamageInstance and puts it in the desired game's damageInstances
     public static create(game: Game, source: Entity, target: Entity) {
 
     }
-    private constructor() {}
+
+    private _source: Entity;
+    private _target: Entity;
+
+    private constructor(source: Entity, target: Entity) {
+        this._source = source;
+        this._target = target;
+    }
+
+    public resolve() {}
 }
 
 export {
