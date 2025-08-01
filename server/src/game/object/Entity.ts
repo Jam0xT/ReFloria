@@ -29,7 +29,7 @@ abstract class Entity {
         all entities can be damaged, though some of them might be invulnerable and won't actually take damage
      */
     public static resolveCollisions(game: Game) {
-        const entities = game.entities;
+        const entities = game.world.entities;
 
         type CollisionInstance = [Entity, Entity];
         const collisions: CollisionInstance[] = [];
@@ -84,3 +84,15 @@ export {
     PhysicalAttributes,
     DamageInstance,
 }
+
+/*
+perhaps I should remove the Effectable and Cursable interfaces and make all entities Effectable and Cursable
+I could just add tags to entities to determine whether one can be affected by specific group of features
+
+each entity has a Behavior object that decides when and how the entity trigger events
+
+a DamageSourceModifier to modify a DamageInstance FROM the current entity (since it acts as the source here), and
+a DamageTargetModifier to modify a DamageInstance TO the current entity (since it acts as the target here)
+
+stateful or stateless??
+ */
