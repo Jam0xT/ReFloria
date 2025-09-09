@@ -12,12 +12,17 @@ class World {
 
     private constructor(worldOptions: WorldOptions) {
         this._seed = worldOptions.seed || World._newSeed();
+        this._generateMap(worldOptions.mapID);
     }
 
     private readonly _seed: string;
 
     public readonly entities: Entity[] = [];
     public readonly damageInstances: DamageInstance[] = [];
+
+    private _generateMap(mapID: string) {
+
+    }
     
     public tick() {
 
@@ -26,6 +31,7 @@ class World {
 
 interface WorldOptions {
     seed?: string; // 目前这个种子不会有任何用处。
+    mapID: string; // 地图id
 }
 
 export {

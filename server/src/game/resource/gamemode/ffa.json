@@ -1,5 +1,8 @@
 {
     "ffa2t1": {
-
+        "team": 2,
+        "player": 1,
+        "map": "void1000x",
+        "time": 600
     }
 }

@@ -10,21 +10,29 @@ class Game {
     private static _isReady = false;
     public static get isReady() {return Game._isReady;}
 
+    private static _gameModeResources: unknown;
+
+    private static async _readGameModeResources() {
+
+    }
+
     public static readResources() {
-        console.log('Reading Curse resources.')
-        Curse.readResources()
-            .then(() => {
-                console.log('Successfully read Curse resources.');
-                console.log('Reading Effect resources.');
+        Promise.all([
+            (() => {
+                return Game._readGameModeResources();
+            })(),
+            (() => {
+                return Curse.readResources();
+            })(),
+            (() => {
                 return Effect.readResources();
-            })
-            .finally(() => {
-                console.log('All game resources are read.');
-                Game._isReady = true;
-            })
-            .catch((err: unknown) => {
-                console.error(`Error reading game resources: ${err}`);
-            });
+            })(),
+        ]).finally(() => {
+            console.log('All game resources are read.');
+            Game._isReady = true;
+        }).catch((err: unknown) => {
+            console.error(`Error reading game resources: ${err}`);
+        });
     }
 
     public static create(gameID: string, options: GameOptions) {
@@ -37,10 +45,12 @@ class Game {
         return game;
     }
 
-    private constructor(options: GameOptions) {
-        this.world = World.create({});
+    private constructor(gameOptions: GameOptions) {
+        this.world = World.create({
+            mapID: '',
+        });
         const tick = this.world.tick.bind(this.world);
-        this._mainLoop = new Loop(tick, 1000 / options.ticksPerSecond);
+        this._mainLoop = new Loop(tick, 1000 / gameOptions.ticksPerSecond);
     }
 
     public readonly world: World;
@@ -74,6 +84,7 @@ class Game {
 
 interface GameOptions {
     ticksPerSecond: number;
+    gameMode: string;
 }
 
 export {
