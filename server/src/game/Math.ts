@@ -56,6 +56,29 @@ export class Vec2 {
     }
 }
 
+export function selectFromWeightedPool(pool: Record<string, number>): string {
+    let totalWeight = 0;
+    Object.values(pool).forEach((weight) => {
+        totalWeight += weight;
+    });
+    let randVar = randomInt(1, totalWeight);
+    let found = false;
+    let selectedKey;
+    Object.keys(pool).forEach((key) => {
+        if (!found) {
+            if (pool[key] >= randVar) {
+                selectedKey = key;
+                found = true;
+            }
+            randVar -= pool[key];
+        }
+    });
+    if (!found) {
+        throw new Error();
+    }
+    return selectedKey!;
+}
+
 export function random(min: number, max: number) { // [min, max)
     return Math.random() * (max - min) + min;
 }
