@@ -6,27 +6,26 @@ class World {
     }
 
     private static _newSeed() {
-        const seed = 'some magic seed';
         // to be implemented
-        return seed;
+        return 'idkseed';
     }
 
     private constructor(worldOptions: WorldOptions) {
         this._seed = worldOptions.seed || World._newSeed();
     }
 
-    public readonly entities: Entity[] = [];
-    public readonly damageInstances: DamageInstance[] = [];
-
     private readonly _seed: string;
 
+    public readonly entities: Entity[] = [];
+    public readonly damageInstances: DamageInstance[] = [];
+    
     public tick() {
 
     }
 }
 
 interface WorldOptions {
-    seed?: string;
+    seed?: string; // 目前这个种子不会有任何用处。
 }
 
 export {

@@ -27,7 +27,6 @@ class Game {
             });
     }
 
-    // require ready
     public static create(gameID: string, options: GameOptions) {
         if (!Game._isReady) {
             console.log('Attempting to create Game before resources are read.')
@@ -37,16 +36,17 @@ class Game {
         Game.games[gameID] = game;
         return game;
     }
+
     private constructor(options: GameOptions) {
         this.world = World.create({});
         const tick = this.world.tick.bind(this.world);
-        this._mainLoop = new Loop(tick, options.ticksPerSecond);
+        this._mainLoop = new Loop(tick, 1000 / options.ticksPerSecond);
     }
 
     public readonly world: World;
 
     private readonly _mainLoop: Loop;
-    // require initialized
+
     public startMainLoop() {
         if (!this._initialized) {
             console.error('Game: Attempt to start Main Loop before initialization.');
