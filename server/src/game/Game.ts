@@ -10,7 +10,7 @@ class Game {
     private static _isReady = false;
     public static get isReady() {return Game._isReady;}
 
-    private static _gameModeResources: unknown;
+    private static _gameModeResources: Record<string, GameModeConfig> = {};
 
     private static async _readGameModeResources() {
 
@@ -47,7 +47,7 @@ class Game {
 
     private constructor(gameOptions: GameOptions) {
         this.world = World.create({
-            mapID: '',
+            mapID: Game._gameModeResources[gameOptions.gameMode].map,
         });
         const tick = this.world.tick.bind(this.world);
         this._mainLoop = new Loop(tick, 1000 / gameOptions.ticksPerSecond);
@@ -85,6 +85,13 @@ class Game {
 interface GameOptions {
     ticksPerSecond: number;
     gameMode: string;
+}
+
+interface GameModeConfig {
+    team: number;
+    player: number;
+    map: string;
+    time: number;
 }
 
 export {
