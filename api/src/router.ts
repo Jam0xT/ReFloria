@@ -1,5 +1,4 @@
 import { App } from 'uWebSockets.js'
-import nodeRSA from 'node-rsa'
 
 import {UserData} from "@/src/room/userData";
 import * as Room from "@/src/room/networking";

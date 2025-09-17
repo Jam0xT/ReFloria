@@ -61,7 +61,6 @@ function getNewWebSocketID() {
     return getUUID_v4();
 }
 
-// 信息压缩函数
 export function encodeMsg(msg: RoomMsg) {
     return JSON.stringify(msg);
 }

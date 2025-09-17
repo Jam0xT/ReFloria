@@ -39,7 +39,7 @@ import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
 import {roomManager} from "@/src/scripts/roomManager.ts";
 import {decode} from "@/src/compress";
-import {client} from "@/src/clientData";
+import { client} from "@/src/clientData";
 
 const store = global();
 
@@ -56,47 +56,7 @@ const room = {
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
 
-        roomManager.ws.onmessage = (event) => {
-            const data = decode(event.data);
-            console.log(data)
-            switch (data.type) {
-                case "setId":
-                    client.playerName = data.options.id
-                    break
-                case "createdRoom":
-                    store.hide_createRoom(null, () => {
-                        store.show_room();
-                    })
-                    break
-                case "joinedRoom":
-                    store.hide_joinRoom(null,() => {
-                        store.show_room();
-                    });
-                    break
-                case "leftRoom":
-                    store.hide_room(null, () => {
-                        store.show_start();
-                    });
-                    break
-                case "updateRoomStatus":
-                    roomManager.update(data.options)
-                    break
-                case "changedRoomPublicStatus":
-                    // let msg: {type : string ; id : string} = {
-                    //     type : "deleteRoom",
-                    //     id : player.getRoomId()
-                    // }
-                    // ws.send(JSON.stringify(msg));
-                    break
-                case "deletedRoom":
-                    // console.log("COMPLETED!");
-                    // ws.close();
-                    break
-                default:
-                    console.log("???");
-            }
-            console.log(typeof roomManager.region);
-        }
+        roomManager.init();
     },
 
     show() {

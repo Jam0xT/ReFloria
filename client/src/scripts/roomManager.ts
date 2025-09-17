@@ -1,7 +1,13 @@
 import { encode, decode } from "@/src/compress";
 import { ref } from "vue";
+import global from "@/src/stores/global";
+import {client} from "@/src/clientData";
+
+const store = global();
 
 export const roomManager = {
+    ws: new WebSocket(`ws://${window.location.hostname}:3000/room`),
+
     client: {
         isHost: ref(true),
         isReady: ref(false)
@@ -17,9 +23,38 @@ export const roomManager = {
         {name: 'Nerd1', isReady: true},
         {name: 'Nerd2', isReady: false}
     ]),
-    ws: new WebSocket(`ws://${window.location.hostname}:3000/room`),
 
-    update(options) : void {
+    init() {
+        roomManager.ws.onmessage = (event) => {
+            const data = decode(event.data);
+            console.log(data)
+            switch (data.type) {
+                case "createdRoom":
+                    store.hide_createRoom(null, () => {
+                        store.show_room();
+                    })
+                    break;
+                case "joinedRoom":
+                    store.hide_joinRoom(null,() => {
+                        store.show_room();
+                    });
+                    break;
+                case "leftRoom":
+                    store.hide_room(null, () => {
+                        store.show_start();
+                    });
+                    break;
+                case "updateRoomStatus":
+                    roomManager.update(data.options)
+                    break;
+                default:
+                    console.log("Unknown message type received.");
+            }
+            console.log(typeof roomManager.region);
+        }
+    },
+
+    update(options) {
         const nowRoom = options.room;
         const me = options.me;
         if(!nowRoom)
@@ -28,7 +63,6 @@ export const roomManager = {
             return ;
         }
         this.roomID.value=nowRoom.id;
-        this.region.value = nowRoom.region;
         this.playersPerTeam.value = nowRoom.playersPerTeam;
         this.teamNumber.value = nowRoom.totalPlayer/nowRoom.playersPerTeam;
         this.publicStatus.value = nowRoom.isPublic;
