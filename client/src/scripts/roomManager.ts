@@ -6,9 +6,8 @@ export const roomManager = {
         isHost: ref(true),
         isReady: ref(false)
     },
-    id: ref(''),
-    nickName : ref('flower'),
-    region: ref('AS'),
+    roomID: ref(''),
+    nickName : ref(''),
     playersPerTeam: ref(2),
     teamNumber: ref(2),
     publicStatus: ref('Public'),
@@ -19,15 +18,16 @@ export const roomManager = {
         {name: 'Nerd2', isReady: false}
     ]),
     ws: new WebSocket(`ws://${window.location.hostname}:3000/room`),
+
     update(options) : void {
         const nowRoom = options.room;
         const me = options.me;
         if(!nowRoom)
         {
-            this.id.value="Nerd No Room";
+            this.roomID.value="Nerd No Room";
             return ;
         }
-        this.id.value=nowRoom.id;
+        this.roomID.value=nowRoom.id;
         this.region.value = nowRoom.region;
         this.playersPerTeam.value = nowRoom.playersPerTeam;
         this.teamNumber.value = nowRoom.totalPlayer/nowRoom.playersPerTeam;
@@ -44,21 +44,15 @@ export const roomManager = {
     },
 
     create() {
-        let msg : {type:string,options:roomOptions} = {
-            type : "createRoom",
-            options : {
-                isPublic: this.publicStatus.value,
-                area : this.region.value,
-                totalPlayer : Number(this.playersPerTeam.value) * Number(this.teamNumber.value),
-                playerPerTeam : Number(this.playersPerTeam.value)
-            },
+        let msg = {
+            type: "createRoom",
             nickName : this.nickName.value
         }
         this.ws.send(encode(msg));
     },
 
     join() {
-        let msg: {type:string,id:string} = {
+        let msg = {
             type : "joinRoom",
             id : this.id.value,
             nickName : this.nickName.value
@@ -67,17 +61,17 @@ export const roomManager = {
     },
 
     leave() {
-        let msg : {type:string,id : string} = {
+        let msg = {
             type : "leaveRoom",
-            id : this.id.value
+            id : this.roomID.value
         }
         this.ws.send(encode(msg));
     },
 
     toggleReady() {
-        let msg: { type: string, id: string } = {
-            type: "changeReadyStatus",
-            id: this.id.value
+        let msg = {
+            type: "toggleReady",
+            id: this.roomID.value
         }
         this.ws.send(encode(msg));
     },
@@ -85,11 +79,4 @@ export const roomManager = {
     startGame() {
 
     }
-}
-
-interface roomOptions {
-    isPublic?: boolean;
-    area : string;
-    totalPlayer : number;
-    playerPerTeam : number;
 }
