@@ -1,4 +1,4 @@
-import { RoomData } from '@/src/scripts/roomManager';
+import { RoomData } from '@/src/roomManager';
 
 export function encode(msg: RoomMsgToSend): string {
     return JSON.stringify(msg)

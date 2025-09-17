@@ -1,86 +1,12 @@
 import * as crypto from 'crypto';
 import { encodeMsg, wsMap, UserData } from "@/src/room/networking";
 
+import { gameServerWebsocket } from "@/src/index";
+
 const hardCodedMaxPlayerCount = 16; // GG
 
 export class Room {
-    private readonly _maxPlayerCount: number;//总人数
-    get maxPlayerCount() {return this._maxPlayerCount;}
-
-    private readonly _players: Record<string, Player>;
-    get players() { return this._players; }
-
-    private readonly _id: string;
-    get id() {return this._id;}
-
-    private _isFull!: boolean;
-    get isFull() {return this._isFull;}
-    set isFull(isFull: boolean) {this._isFull = isFull;}
-
-    private _isEmpty!: boolean;
-    get isEmpty() {return this._isEmpty;}
-    set isEmpty(isEmpty: boolean) {this._isEmpty = isEmpty;}
-
     static rooms: Record<string, Room> = {};
-
-    getData(): RoomData {
-        return {
-            maxPlayerCount: this._maxPlayerCount,
-            currentPlayerCount: Object.keys(this.players).length,
-            roomID: this._id,
-            players: Object.values(this._players).map(
-                (player) => {return player.getData();}),
-        };
-    }
-
-    constructor() {
-        this._maxPlayerCount = hardCodedMaxPlayerCount;
-        this._id = Room.getNewID();
-        this._players = {};
-    }
-
-    addPlayer(WebSocketID: string, nickName: string) {
-        const currentPlayerCount = Object.keys(this.players).length;
-        console.log(currentPlayerCount);
-        if ( currentPlayerCount < this.maxPlayerCount ) {
-            if ( currentPlayerCount === this.maxPlayerCount - 1 ) {
-                this.isFull = true;
-            }
-            this.players[WebSocketID] = new Player({
-                webSocketID: WebSocketID,
-                nickName: nickName,
-                isReady: false,
-            });
-            this.isEmpty = false;
-            return true;
-        }
-        return false;
-    }
-
-    removePlayer(WebSocketID: string) {
-        const player = this.players[WebSocketID];
-        if (!player)
-            return false;
-        const currentPlayerCount = Object.keys(this.players).length;
-        if ( currentPlayerCount === 1 ) {
-            this.isEmpty = true;
-        }
-        delete this.players[WebSocketID];
-        this.isFull = false;
-        return true;
-    }
-
-    broadcastUpdate(subjectWebSocketID?: string) {
-        for (let webSocketID in this.players) {
-            wsMap[webSocketID].send(encodeMsg({
-                type: "update",
-                value: {
-                    roomData: this.getData(),
-                    // subject: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
-                }
-            }))
-        }
-    }
 
     static create(nickName : string, creatorUserData: UserData) {
         const room = new Room();
@@ -146,6 +72,12 @@ export class Room {
         if (!player)
             return false;
         player.isReady = !player.isReady;
+        if (player.isReady)
+            room.readyPlayerCount ++;
+        else
+            room.readyPlayerCount --;
+        if (room.readyPlayerCount === Object.keys(room._players).length)
+            room.startGame();
         room.broadcastUpdate(changerUserData.webSocketID);
         return true;
     }
@@ -165,6 +97,110 @@ export class Room {
             id += '0';
         }
         return id;
+    }
+
+    static getNewGameID(): string {
+        const gameIDLength = 12;
+        let newGameID = '';
+        const charSet = 'abcdefghijklmnopqrstABCDEFGHIJKLMNOPQRST0123456789';
+        for(let i = 0; i < 12; i ++ ) {
+            newGameID += charSet[Math.floor(Math.random() * charSet.length)];
+        }
+        return newGameID;
+    }
+
+    constructor() {
+        this._maxPlayerCount = hardCodedMaxPlayerCount;
+        this._id = Room.getNewID();
+        this._players = {};
+    }
+
+    private readonly _maxPlayerCount: number;//总人数
+    get maxPlayerCount() {return this._maxPlayerCount;}
+
+    private readonly _players: Record<string, Player>;
+    get players() { return this._players; }
+
+    private readonly _id: string;
+    get id() {return this._id;}
+
+    private _isFull!: boolean;
+    get isFull() {return this._isFull;}
+    set isFull(isFull: boolean) {this._isFull = isFull;}
+
+    private _isEmpty!: boolean;
+    get isEmpty() {return this._isEmpty;}
+    set isEmpty(isEmpty: boolean) {this._isEmpty = isEmpty;}
+
+    private readyPlayerCount: number = 0;
+
+    startGame() {
+        const newGameID = Room.getNewGameID();
+        console.log(`start game ${newGameID}`);
+        // gameServerWebsocket.send(JSON.stringify({
+        //     gameID: newGameID,
+        // }));
+        for (let webSocketID in this._players) {
+            wsMap[webSocketID].send(encodeMsg({
+                type: "start",
+                value: {
+                    gameID: newGameID,
+                }
+            }));
+        }
+    }
+
+    getData(): RoomData {
+        return {
+            maxPlayerCount: this._maxPlayerCount,
+            currentPlayerCount: Object.keys(this.players).length,
+            roomID: this._id,
+            players: Object.values(this._players).map(
+                (player) => {return player.getData();}),
+        };
+    }
+
+    addPlayer(WebSocketID: string, nickName: string) {
+        const currentPlayerCount = Object.keys(this.players).length;
+        console.log(currentPlayerCount);
+        if ( currentPlayerCount < this.maxPlayerCount ) {
+            if ( currentPlayerCount === this.maxPlayerCount - 1 ) {
+                this.isFull = true;
+            }
+            this.players[WebSocketID] = new Player({
+                webSocketID: WebSocketID,
+                nickName: nickName,
+                isReady: false,
+            });
+            this.isEmpty = false;
+            return true;
+        }
+        return false;
+    }
+
+    removePlayer(WebSocketID: string) {
+        const player = this.players[WebSocketID];
+        if (!player)
+            return false;
+        const currentPlayerCount = Object.keys(this.players).length;
+        if ( currentPlayerCount === 1 ) {
+            this.isEmpty = true;
+        }
+        delete this.players[WebSocketID];
+        this.isFull = false;
+        return true;
+    }
+
+    broadcastUpdate(subjectWebSocketID?: string) {
+        for (let webSocketID in this.players) {
+            wsMap[webSocketID].send(encodeMsg({
+                type: "update",
+                value: {
+                    roomData: this.getData(),
+                    // subject: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
+                }
+            }))
+        }
     }
 }
 

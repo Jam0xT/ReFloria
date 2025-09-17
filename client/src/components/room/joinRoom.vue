@@ -26,7 +26,7 @@
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
-import {roomManager} from "@/src/scripts/roomManager";
+import {roomManager} from "@/src/roomManager";
 
 const store = global();
 

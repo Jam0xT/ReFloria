@@ -36,7 +36,13 @@ export const roomManager = {
                     });
                     break;
                 case "update":
-                    roomManager.update(msg.value)
+                    roomManager.update(msg.value);
+                    break;
+                case "start":
+                    store.hide_room(null, () => {
+                        store.show_game();
+                    })
+                    // startGame(msg.value.gameID);
                     break;
                 default:
                     console.log("Unknown message type received.");
@@ -102,10 +108,6 @@ export const roomManager = {
         }
         this.ws.send(encode(msg));
     },
-
-    startGame() {
-
-    }
 }
 
 export interface RoomData {

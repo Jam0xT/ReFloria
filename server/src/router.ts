@@ -1,7 +1,6 @@
 import { App, WebSocket } from 'uWebSockets.js';
 import { v4 as getUUID_v4 } from 'uuid';
 import Config from './config';
-import { Room } from './room';
 
 const app = App();
 const wsMap: Record<string, WebSocket<UserData>> = {}; // WebSocketID -> WebSocket<UserData>
@@ -9,53 +8,33 @@ const wsMap: Record<string, WebSocket<UserData>> = {}; // WebSocketID -> WebSock
 export function startRouter(config: Config) {
     app.get('/', (res, req) => {
         res.end('ok');
-    }).ws<UserData>('/ws', {
+    }).ws('/api', {
+        open: (ws) => {
+            console.log('Connected to the room api.');
+        },
+        message: (ws, message) => {
+
+        },
+        close: (ws, code, message) => {
+            console.log('Disconnected from room api.');
+        }
+    }).ws<UserData>('/game', {
         open: (ws) => {
             const userData = ws.getUserData();
             const newWebSocketID = getNewWebSocketID();
             wsMap[newWebSocketID] = ws;
             userData.webSocketID = newWebSocketID;
             console.log(`A new WebSocket connection has been established with ${newWebSocketID}!`);
-            let msg :{type : string, options : {id : string}} = {
-                type : "setId",
-                options: {id : newWebSocketID}
-            }
-            ws.send(JSON.stringify(msg));
         },
         message: (ws, message) => {
             const userData = ws.getUserData();
             const parsedMsg: any = JSON.parse(Buffer.from(message).toString('utf-8'));
             console.log(`Received and parsed message from ${userData.webSocketID}: ${parsedMsg}`);
-            switch (parsedMsg.type) {
-                case 'createRoom': {
-                    Room.create(parsedMsg.options, userData);
-                    break;
-                }
-                case 'joinRoom': {
-                    Room.join(parsedMsg.id, userData);
-                    break;
-                }
-                case 'leaveRoom': {
-                    Room.leave(parsedMsg.id, userData);
-                    break;
-                }
-                case 'changeReadyStatus': {
-                    Room.changeReadyStatus(parsedMsg.id, userData);
-                    break;
-                }
-                case 'changeRoomPublicStatus': {
-                    Room.changePublicStatus(parsedMsg.id);
-                    break;
-                }
-                default: {
-                    console.log(`Unknown message: ${parsedMsg}`);
-                }
-            }
+            // process the parsedMsg
         },
         close: (ws, code, message) => {
             const userData = ws.getUserData();
             const roomID = userData.roomID;
-            Room.leave(roomID, userData);
             console.log(`WebSocket connection with ${userData.webSocketID} closed.`);
         }
     }).listen(config.port, (token) => {

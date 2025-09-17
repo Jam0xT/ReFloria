@@ -76,6 +76,7 @@ interface RoomMsgToSend {
     type: string;
     value: {
         roomData?: RoomData;
+        gameID?: string;
     };
 }
 
