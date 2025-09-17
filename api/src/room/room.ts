@@ -23,12 +23,13 @@ export class Room {
 
     static rooms: Record<string, Room> = {};
 
-    getData() {
+    getData(): RoomData {
         return {
             maxPlayerCount: this._maxPlayerCount,
             currentPlayerCount: Object.keys(this.players).length,
             roomID: this._id,
-            players: this._players,
+            players: Object.values(this._players).map(
+                (player) => {return player.getData();}),
         };
     }
 
@@ -72,10 +73,10 @@ export class Room {
     broadcastUpdate(subjectWebSocketID?: string) {
         for (let webSocketID in this.players) {
             wsMap[webSocketID].send(encodeMsg({
-                type : "updateRoomStatus",
-                value : {
-                    room: this.getData(),
-                    me: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
+                type: "update",
+                value: {
+                    roomData: this.getData(),
+                    // subject: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
                 }
             }))
         }
@@ -180,4 +181,23 @@ class Player {
         this.nickName = props.nickName;
         this.isReady = props.isReady
     }
+
+    public getData(): PlayerData {
+        return {
+            nickName: this.nickName,
+            isReady: this.isReady,
+        };
+    }
+}
+
+export interface RoomData {
+    roomID: string;
+    players: PlayerData[];
+    currentPlayerCount: number;
+    maxPlayerCount: number;
+}
+
+interface PlayerData {
+    nickName: string;
+    isReady: boolean;
 }

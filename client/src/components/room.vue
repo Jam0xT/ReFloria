@@ -7,14 +7,14 @@
                 </svg>
             </div>
             <div class="room_info">
-                <p class="_font_3">Room: {{ roomManager.id ?? "" }}</p>
-                <p class="_font_2">Players: {{ roomManager.nowPlayers }}/{{ roomManager.maxPlayers }}</p>
+                <p class="_font_3">Room: {{ roomManager.roomID ?? "" }}</p>
+                <p class="_font_2">Players: {{ roomManager.currentPlayerCount }}/{{ roomManager.maxPlayerCount }}</p>
             </div>
         </div>
 
         <div class="player_list">
             <div class="player_item" v-for="(player, index) in roomManager.players.value" :key="index">
-                <p class="_font_2">{{ player.name }}</p>
+                <p class="_font_2">{{ player.nickName }}</p>
                 <div class="player_status" :class="{ ready: player.isReady }">
                     {{ player.isReady ? 'Ready' : 'Waiting' }}
                 </div>
@@ -23,11 +23,11 @@
 
         <div class="controls">
             <div class="ready_button" @click="roomManager.toggleReady">
-                <p class="_font_3">{{ roomManager.client.isReady ? 'Not ready' : 'Ready' }}</p>
+                <p class="_font_3">Ready</p>
             </div>
-            <div class="start_button" v-if="roomManager.client.isHost" @click="roomManager.startGame">
-                <p class="_font_3">Start</p>
-            </div>
+<!--            <div class="start_button" v-if="roomManager.isHost" @click="roomManager.startGame">-->
+<!--                <p class="_font_3">Start</p>-->
+<!--            </div>-->
         </div>
     </div>
 </template>

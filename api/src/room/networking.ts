@@ -1,6 +1,6 @@
 import { WebSocket } from 'uWebSockets.js';
 import { v4 as getUUID_v4 } from "uuid";
-import { Room } from "@/src/room/room";
+import { Room, RoomData } from "@/src/room/room";
 
 export const wsMap: Record<string, WebSocket<UserData>> = {}; // WebSocketID -> WebSocket<UserData>
 
@@ -75,7 +75,7 @@ interface RoomMsgToReceive {
 interface RoomMsgToSend {
     type: string;
     value: {
-
+        roomData?: RoomData;
     };
 }
 
