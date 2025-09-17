@@ -1,27 +1,17 @@
 import * as crypto from 'crypto';
-import { UserData } from './userData'
-import {wsMap} from "@/src/room/wsMap";
-import {encodeMsg} from "@/src/room/networking";
+import { encodeMsg, wsMap, UserData } from "@/src/room/networking";
+
+const hardCodedMaxPlayerCount = 16; // GG
 
 export class Room {
-    private readonly _region: string;//区域
-    get region() {return this._region;}
-
     private readonly _maxPlayerCount: number;//总人数
     get maxPlayerCount() {return this._maxPlayerCount;}
-
-    private readonly _maxPlayerCountPerTeam: number;//各队伍人数
-    get maxPlayerCountPerTeam() {return this._maxPlayerCountPerTeam;}
 
     private readonly _players: Record<string, Player>;
     get players() { return this._players; }
 
     private readonly _id: string;
     get id() {return this._id;}
-
-    private _isPublic: boolean;//是否公开
-    get isPublic() {return this._isPublic;}
-    set isPublic(isPublic: boolean) {this._isPublic = isPublic;}
 
     private _isFull!: boolean;
     get isFull() {return this._isFull;}
@@ -33,28 +23,22 @@ export class Room {
 
     static rooms: Record<string, Room> = {};
 
-    data() {
+    getData() {
         return {
-            isPublic: this._isPublic,
-            totalPlayer: this._maxPlayerCount,
-            nowPlayer: Object.keys(this.players).length,
-            id: this._id,
+            maxPlayerCount: this._maxPlayerCount,
+            currentPlayerCount: Object.keys(this.players).length,
+            roomID: this._id,
             players: this._players,
-            region: this._region,
-            playersPerTeam: this._maxPlayerCountPerTeam,
         };
     }
 
-    constructor(options: roomOptions) {
-        this._region = options.region;
-        this._maxPlayerCount = options.totalPlayer;
-        this._maxPlayerCountPerTeam = options.playerPerTeam;
-        this._isPublic = options.isPublic ?? true;
+    constructor() {
+        this._maxPlayerCount = hardCodedMaxPlayerCount;
         this._id = Room.getNewID();
         this._players = {};
     }
 
-    addPlayer(WebSocketID: string,nickName : string) {
+    addPlayer(WebSocketID: string, nickName: string) {
         const currentPlayerCount = Object.keys(this.players).length;
         console.log(currentPlayerCount);
         if ( currentPlayerCount < this.maxPlayerCount ) {
@@ -63,7 +47,7 @@ export class Room {
             }
             this.players[WebSocketID] = new Player({
                 webSocketID: WebSocketID,
-                name: nickName,
+                nickName: nickName,
                 isReady: false,
             });
             this.isEmpty = false;
@@ -89,22 +73,22 @@ export class Room {
         for (let webSocketID in this.players) {
             wsMap[webSocketID].send(encodeMsg({
                 type : "updateRoomStatus",
-                options : {
-                    room: this.data(),
+                value : {
+                    room: this.getData(),
                     me: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
                 }
             }))
         }
     }
 
-    static create(options: roomOptions,nickName : string, creatorUserData: UserData) {
-        const room = new Room(options);
-        room.addPlayer(creatorUserData.webSocketID,nickName);
+    static create(nickName : string, creatorUserData: UserData) {
+        const room = new Room();
+        room.addPlayer(creatorUserData.webSocketID, nickName);
         Room.rooms[room.id] = room;
         creatorUserData.roomID = room.id;
         wsMap[creatorUserData.webSocketID].send(encodeMsg({
             type: "createdRoom",
-            options: {}
+            value: {}
         }))
         room.broadcastUpdate(creatorUserData.webSocketID);
         return true;
@@ -125,7 +109,7 @@ export class Room {
         joinerUserData.roomID = room.id;
         wsMap[joinerUserData.webSocketID].send(encodeMsg({
             type: "joinedRoom",
-            options: {}
+            value: {}
         }))
         room.broadcastUpdate(joinerUserData.webSocketID);
         return true;
@@ -145,14 +129,14 @@ export class Room {
         if (wsMap[leaverUserData.webSocketID]) {
             wsMap[leaverUserData.webSocketID].send(encodeMsg({
                 type: 'leftRoom',
-                options: {}
+                value: {}
             }))
         }
         room.broadcastUpdate(leaverUserData.webSocketID);
         return true;
     }
 
-    static changeReadyStatus(roomId: string, changerUserData: UserData) {
+    static toggleReady(roomId: string, changerUserData: UserData) {
         const room = Room.rooms[roomId];
         if (!room)
             return false;
@@ -162,15 +146,6 @@ export class Room {
             return false;
         player.isReady = !player.isReady;
         room.broadcastUpdate(changerUserData.webSocketID);
-        return true;
-    }
-
-    static changePublicStatus(roomID: string) {
-        const room = Room.rooms[roomID];
-        if (!room)
-            return false;
-        room.isPublic = !room.isPublic;
-        room.broadcastUpdate();
         return true;
     }
 
@@ -192,25 +167,17 @@ export class Room {
     }
 }
 
-interface roomOptions {
-    isPublic?: boolean;
-    region: string;
-    totalPlayer: number;
-    playerPerTeam: number;
-}
-
 class Player {
     webSocketID: string;
-    name: string;
+    nickName: string;
     isReady: boolean;
     constructor(props: {
         webSocketID: string;
-        name: string;
+        nickName: string;
         isReady: boolean;
     }) {
         this.webSocketID = props.webSocketID;
-        this.name = props.name;
+        this.nickName = props.nickName;
         this.isReady = props.isReady
     }
-
 }

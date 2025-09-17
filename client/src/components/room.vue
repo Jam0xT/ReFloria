@@ -14,7 +14,6 @@
 
         <div class="player_list">
             <div class="player_item" v-for="(player, index) in roomManager.players.value" :key="index">
-                <div class="player_avatar"></div>
                 <p class="_font_2">{{ player.name }}</p>
                 <div class="player_status" :class="{ ready: player.isReady }">
                     {{ player.isReady ? 'Ready' : 'Waiting' }}
@@ -38,8 +37,6 @@ import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
 import {roomManager} from "@/src/scripts/roomManager.ts";
-import {decode} from "@/src/compress";
-import { client} from "@/src/clientData";
 
 const store = global();
 

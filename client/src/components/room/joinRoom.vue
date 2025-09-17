@@ -9,7 +9,7 @@
         <div class="form">
             <div class="form_item">
                 <p class="_font_3">Room Id</p>
-                <input type="text" v-model="roomManager.id.value" placeholder="">
+                <input type="text" v-model="roomManager.roomID.value" placeholder="">
             </div>
             <div class="form_item">
                 <p class="_font_3">Nickname</p>

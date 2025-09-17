@@ -1,9 +1,6 @@
 import { encode, decode } from "@/src/compress";
 import { ref } from "vue";
-import global from "@/src/stores/global";
-import {client} from "@/src/clientData";
-
-const store = global();
+import { global } from "@/src/stores/global";
 
 export const roomManager = {
     ws: new WebSocket(`ws://${window.location.hostname}:3000/room`),
@@ -14,17 +11,16 @@ export const roomManager = {
     },
     roomID: ref(''),
     nickName : ref(''),
-    playersPerTeam: ref(2),
-    teamNumber: ref(2),
-    publicStatus: ref('Public'),
-    nowPlayers: ref(-1),
-    maxPlayers: ref(4),
+    currentPlayerCount: ref(-1),
+    maxPlayerCount: ref(4),
     players: ref([
         {name: 'Nerd1', isReady: true},
         {name: 'Nerd2', isReady: false}
     ]),
 
     init() {
+        const store = global();
+
         roomManager.ws.onmessage = (event) => {
             const data = decode(event.data);
             console.log(data)
@@ -62,42 +58,44 @@ export const roomManager = {
             this.roomID.value="Nerd No Room";
             return ;
         }
-        this.roomID.value=nowRoom.id;
-        this.playersPerTeam.value = nowRoom.playersPerTeam;
-        this.teamNumber.value = nowRoom.totalPlayer/nowRoom.playersPerTeam;
-        this.publicStatus.value = nowRoom.isPublic;
-        this.nowPlayers.value = nowRoom.nowPlayer;
-        this.maxPlayers.value = nowRoom.totalPlayer;
+        this.roomID.value = nowRoom.id;
+        this.currentPlayerCount.value = nowRoom.nowPlayer;
+        this.maxPlayerCount.value = nowRoom.totalPlayer;
         this.players.value=[];
-        for(let id in nowRoom.players){
+        for (let id in nowRoom.players) {
             this.players.value.push({name : nowRoom.players[id].name,isReady : nowRoom.players[id].isReady});
         }
-        this.client.name = me.name
-        this.client.isReady = me.isReady
-
+        this.client.name = me.name;
+        this.client.isReady = me.isReady;
     },
 
     create() {
         let msg = {
-            type: "createRoom",
-            nickName : this.nickName.value
+            type: "create",
+            value: {
+                nickName : this.nickName.value
+            }
         }
         this.ws.send(encode(msg));
     },
 
     join() {
         let msg = {
-            type : "joinRoom",
-            id : this.id.value,
-            nickName : this.nickName.value
+            type: "join",
+            value: {
+                roomID: this.roomID.value,
+                nickName: this.nickName.value
+            }
         }
         this.ws.send(encode(msg));
     },
 
     leave() {
         let msg = {
-            type : "leaveRoom",
-            id : this.roomID.value
+            type: "leave",
+            value: {
+                roomID: this.roomID.value
+            }
         }
         this.ws.send(encode(msg));
     },
@@ -105,7 +103,9 @@ export const roomManager = {
     toggleReady() {
         let msg = {
             type: "toggleReady",
-            id: this.roomID.value
+            value: {
+                roomID: this.roomID.value
+            }
         }
         this.ws.send(encode(msg));
     },

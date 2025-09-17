@@ -1,6 +1,6 @@
 import { App } from 'uWebSockets.js'
 
-import {UserData} from "@/src/room/userData";
+import { UserData } from "@/src/room/networking";
 import * as Room from "@/src/room/networking";
 
 const app = App({});
