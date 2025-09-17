@@ -8,41 +8,10 @@
 
         <div class="form">
             <div class="form_item">
-                <p class="_font_3">Server Area</p>
-                <select v-model="presentRoom.region.value">
-                    <option value="AS">AS</option>
-                    <option value="EU">EU</option>
-                    <option value="NA">NA</option>
-                </select>
-            </div>
-            <div class="form_item">
-                <p class="_font_3">Public Status</p>
-                <select v-model="presentRoom.publicStatus.value">
-                    <option value="Public">Public</option>
-                    <option value="Private">Private</option>
-                </select>
-            </div>
-            <div class="form_item">
-                <p class="_font_3">Players Per Team</p>
-                <select v-model="presentRoom.playersPerTeam.value">
-                    <option value="2">2</option>
-                    <option value="4">4</option>
-                    <option value="8">8</option>
-                </select>
-            </div>
-            <div class="form_item">
-                <p class="_font_3">Team Number</p>
-                <select v-model="presentRoom.teamNumber.value">
-                    <option value="2">2</option>
-                    <option value="3">3</option>
-                    <option value="4">4</option>
-                </select>
-            </div>
-            <div class="form_item">
                 <p class="_font_3">Nickname</p>
-                <input type="text" v-model="presentRoom.nickName.value" placeholder="flower">
+                <input type="text" v-model="roomManager.nickName.value" placeholder="flower">
             </div>
-            <div class="submit_button" @click="presentRoom.create">
+            <div class="submit_button" @click="roomManager.create">
                 <p class="_font_3">Create</p>
             </div>
         </div>
@@ -53,7 +22,7 @@
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
-import {presentRoom} from "@/src/scripts/room";
+import {roomManager} from "@/src/scripts/roomManager";
 
 const store = global();
 

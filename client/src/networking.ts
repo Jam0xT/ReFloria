@@ -1,5 +1,3 @@
-import {roomOptions} from './type'
-import * as player from './playerData'
 import { global } from './stores/global';
 
 type onMessageFn = (event) => any;

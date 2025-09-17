@@ -1,11 +1,7 @@
-import { roomOptions } from "@/src/type";
-import {encode, decode} from "@/src/compress";
-import {ref} from "vue";
-import config from "@/src/config";
-import {client} from "@/src/clientData";
+import { encode, decode } from "@/src/compress";
+import { ref } from "vue";
 
-export const presentRoom = {
-    // 模拟数据 - 实际应从服务器获取
+export const roomManager = {
     client: {
         isHost: ref(true),
         isReady: ref(false)
@@ -22,7 +18,7 @@ export const presentRoom = {
         {name: 'Nerd1', isReady: true},
         {name: 'Nerd2', isReady: false}
     ]),
-    ws: new WebSocket(`ws://${config.API}/room`),
+    ws: new WebSocket(`ws://${window.location.hostname}:3000/room`),
     update(options) : void {
         const nowRoom = options.room;
         const me = options.me;
@@ -78,7 +74,7 @@ export const presentRoom = {
         this.ws.send(encode(msg));
     },
 
-    changeReadyStatus() {
+    toggleReady() {
         let msg: { type: string, id: string } = {
             type: "changeReadyStatus",
             id: this.id.value
@@ -89,4 +85,11 @@ export const presentRoom = {
     startGame() {
 
     }
+}
+
+interface roomOptions {
+    isPublic?: boolean;
+    area : string;
+    totalPlayer : number;
+    playerPerTeam : number;
 }

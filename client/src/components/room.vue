@@ -1,19 +1,19 @@
 <template>
     <div class="room _fullscreen" v-show="room.visible.value">
         <div class="header">
-            <div class="back_button" @click="presentRoom.leave">
+            <div class="back_button" @click="roomManager.leave">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
             </div>
             <div class="room_info">
-                <p class="_font_3">Room: {{ presentRoom.id ?? "" }}</p>
-                <p class="_font_2">Players: {{ presentRoom.nowPlayers }}/{{ presentRoom.maxPlayers }}</p>
+                <p class="_font_3">Room: {{ roomManager.id ?? "" }}</p>
+                <p class="_font_2">Players: {{ roomManager.nowPlayers }}/{{ roomManager.maxPlayers }}</p>
             </div>
         </div>
 
         <div class="player_list">
-            <div class="player_item" v-for="(player, index) in presentRoom.players.value" :key="index">
+            <div class="player_item" v-for="(player, index) in roomManager.players.value" :key="index">
                 <div class="player_avatar"></div>
                 <p class="_font_2">{{ player.name }}</p>
                 <div class="player_status" :class="{ ready: player.isReady }">
@@ -23,10 +23,10 @@
         </div>
 
         <div class="controls">
-            <div class="ready_button" @click="presentRoom.changeReadyStatus">
-                <p class="_font_3">{{ presentRoom.client.isReady ? 'Not ready' : 'Ready' }}</p>
+            <div class="ready_button" @click="roomManager.toggleReady">
+                <p class="_font_3">{{ roomManager.client.isReady ? 'Not ready' : 'Ready' }}</p>
             </div>
-            <div class="start_button" v-if="presentRoom.client.isHost" @click="presentRoom.startGame">
+            <div class="start_button" v-if="roomManager.client.isHost" @click="roomManager.startGame">
                 <p class="_font_3">Start</p>
             </div>
         </div>
@@ -37,7 +37,7 @@
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
-import {presentRoom} from "@/src/scripts/room.ts";
+import {roomManager} from "@/src/scripts/roomManager.ts";
 import {decode} from "@/src/compress";
 import {client} from "@/src/clientData";
 
@@ -56,7 +56,7 @@ const room = {
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
 
-        presentRoom.ws.onmessage = (event) => {
+        roomManager.ws.onmessage = (event) => {
             const data = decode(event.data);
             console.log(data)
             switch (data.type) {
@@ -79,7 +79,7 @@ const room = {
                     });
                     break
                 case "updateRoomStatus":
-                    presentRoom.update(data.options)
+                    roomManager.update(data.options)
                     break
                 case "changedRoomPublicStatus":
                     // let msg: {type : string ; id : string} = {
@@ -95,7 +95,7 @@ const room = {
                 default:
                     console.log("???");
             }
-            console.log(typeof presentRoom.region);
+            console.log(typeof roomManager.region);
         }
     },
 
