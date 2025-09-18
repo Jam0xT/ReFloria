@@ -1,27 +1,128 @@
 import * as crypto from 'crypto';
-import { UserData } from './userData'
-import {wsMap} from "@/src/room/wsMap";
-import {encodeMsg} from "@/src/room/networking";
+import { encodeMsg, wsMap, UserData } from "@/src/room/networking";
+
+import { gameServerWebsocket } from "@/src/index";
+
+const hardCodedMaxPlayerCount = 16; // GG
 
 export class Room {
-    private readonly _region: string;//区域
-    get region() {return this._region;}
+    static rooms: Record<string, Room> = {};
+
+    static create(nickName : string, creatorUserData: UserData) {
+        const room = new Room();
+        room.addPlayer(creatorUserData.webSocketID, nickName);
+        Room.rooms[room.id] = room;
+        creatorUserData.roomID = room.id;
+        wsMap[creatorUserData.webSocketID].send(encodeMsg({
+            type: "createdRoom",
+            value: {}
+        }))
+        room.broadcastUpdate(creatorUserData.webSocketID);
+        return true;
+    }
+
+    static destroy(roomID: string) {
+        delete Room.rooms[roomID];
+    }
+
+    static join(roomID: string, nickName: string, joinerUserData: UserData) {
+        const room = Room.rooms[roomID];
+        if (!room)
+            return false;
+        const players = room.players;
+        if ((joinerUserData.webSocketID in players) || room.isFull)
+            return false;
+        room.addPlayer(joinerUserData.webSocketID,nickName);
+        joinerUserData.roomID = room.id;
+        wsMap[joinerUserData.webSocketID].send(encodeMsg({
+            type: "joinedRoom",
+            value: {}
+        }))
+        room.broadcastUpdate(joinerUserData.webSocketID);
+        return true;
+    }
+
+    static leave(roomID: string, leaverUserData: UserData) {
+        const room = Room.rooms[roomID];
+        if (!room)
+            return false;
+        const players = room.players;
+        if (!(leaverUserData.webSocketID in players))
+            return false;
+        room.removePlayer(leaverUserData.webSocketID);
+        if ( room.isEmpty )
+            Room.destroy(room.id);
+        leaverUserData.roomID = '';
+        if (wsMap[leaverUserData.webSocketID]) {
+            wsMap[leaverUserData.webSocketID].send(encodeMsg({
+                type: 'leftRoom',
+                value: {}
+            }))
+        }
+        room.broadcastUpdate(leaverUserData.webSocketID);
+        return true;
+    }
+
+    static toggleReady(roomId: string, changerUserData: UserData) {
+        const room = Room.rooms[roomId];
+        if (!room)
+            return false;
+        const players = room.players;
+        const player = players[changerUserData.webSocketID];
+        if (!player)
+            return false;
+        player.isReady = !player.isReady;
+        if (player.isReady)
+            room.readyPlayerCount ++;
+        else
+            room.readyPlayerCount --;
+        if (room.readyPlayerCount === Object.keys(room._players).length)
+            room.startGame();
+        room.broadcastUpdate(changerUserData.webSocketID);
+        return true;
+    }
+
+    static getNewID(): string {
+        const charList = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        const fixedIDLen = 6;
+        const arr = new Uint32Array(1);
+        crypto.getRandomValues(arr);
+        let val = arr[0];
+        let id = '';
+        while (val > 0) {
+            id += charList[val % charList.length];
+            val = (val - val % charList.length) / charList.length;
+        }
+        while (id.length < fixedIDLen) {
+            id += '0';
+        }
+        return id;
+    }
+
+    static getNewGameID(): string {
+        const gameIDLength = 12;
+        let newGameID = '';
+        const charSet = 'abcdefghijklmnopqrstABCDEFGHIJKLMNOPQRST0123456789';
+        for(let i = 0; i < 12; i ++ ) {
+            newGameID += charSet[Math.floor(Math.random() * charSet.length)];
+        }
+        return newGameID;
+    }
+
+    constructor() {
+        this._maxPlayerCount = hardCodedMaxPlayerCount;
+        this._id = Room.getNewID();
+        this._players = {};
+    }
 
     private readonly _maxPlayerCount: number;//总人数
     get maxPlayerCount() {return this._maxPlayerCount;}
-
-    private readonly _maxPlayerCountPerTeam: number;//各队伍人数
-    get maxPlayerCountPerTeam() {return this._maxPlayerCountPerTeam;}
 
     private readonly _players: Record<string, Player>;
     get players() { return this._players; }
 
     private readonly _id: string;
     get id() {return this._id;}
-
-    private _isPublic: boolean;//是否公开
-    get isPublic() {return this._isPublic;}
-    set isPublic(isPublic: boolean) {this._isPublic = isPublic;}
 
     private _isFull!: boolean;
     get isFull() {return this._isFull;}
@@ -31,30 +132,35 @@ export class Room {
     get isEmpty() {return this._isEmpty;}
     set isEmpty(isEmpty: boolean) {this._isEmpty = isEmpty;}
 
-    static rooms: Record<string, Room> = {};
+    private readyPlayerCount: number = 0;
 
-    data() {
+    startGame() {
+        const newGameID = Room.getNewGameID();
+        console.log(`start game ${newGameID}`);
+        gameServerWebsocket.send(JSON.stringify({
+            gameID: newGameID,
+        }));
+        for (let webSocketID in this._players) {
+            wsMap[webSocketID].send(encodeMsg({
+                type: "start",
+                value: {
+                    gameID: newGameID,
+                }
+            }));
+        }
+    }
+
+    getData(): RoomData {
         return {
-            isPublic: this._isPublic,
-            totalPlayer: this._maxPlayerCount,
-            nowPlayer: Object.keys(this.players).length,
-            id: this._id,
-            players: this._players,
-            region: this._region,
-            playersPerTeam: this._maxPlayerCountPerTeam,
+            maxPlayerCount: this._maxPlayerCount,
+            currentPlayerCount: Object.keys(this.players).length,
+            roomID: this._id,
+            players: Object.values(this._players).map(
+                (player) => {return player.getData();}),
         };
     }
 
-    constructor(options: roomOptions) {
-        this._region = options.region;
-        this._maxPlayerCount = options.totalPlayer;
-        this._maxPlayerCountPerTeam = options.playerPerTeam;
-        this._isPublic = options.isPublic ?? true;
-        this._id = Room.getNewID();
-        this._players = {};
-    }
-
-    addPlayer(WebSocketID: string,nickName : string) {
+    addPlayer(WebSocketID: string, nickName: string) {
         const currentPlayerCount = Object.keys(this.players).length;
         console.log(currentPlayerCount);
         if ( currentPlayerCount < this.maxPlayerCount ) {
@@ -63,7 +169,7 @@ export class Room {
             }
             this.players[WebSocketID] = new Player({
                 webSocketID: WebSocketID,
-                name: nickName,
+                nickName: nickName,
                 isReady: false,
             });
             this.isEmpty = false;
@@ -88,129 +194,46 @@ export class Room {
     broadcastUpdate(subjectWebSocketID?: string) {
         for (let webSocketID in this.players) {
             wsMap[webSocketID].send(encodeMsg({
-                type : "updateRoomStatus",
-                options : {
-                    room: this.data(),
-                    me: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
+                type: "update",
+                value: {
+                    roomData: this.getData(),
+                    // subject: subjectWebSocketID ? this.players[subjectWebSocketID] : null,
                 }
             }))
         }
     }
-
-    static create(options: roomOptions,nickName : string, creatorUserData: UserData) {
-        const room = new Room(options);
-        room.addPlayer(creatorUserData.webSocketID,nickName);
-        Room.rooms[room.id] = room;
-        creatorUserData.roomID = room.id;
-        wsMap[creatorUserData.webSocketID].send(encodeMsg({
-            type: "createdRoom",
-            options: {}
-        }))
-        room.broadcastUpdate(creatorUserData.webSocketID);
-        return true;
-    }
-
-    static destroy(roomID: string) {
-        delete Room.rooms[roomID];
-    }
-
-    static join(roomID: string, nickName: string, joinerUserData: UserData) {
-        const room = Room.rooms[roomID];
-        if (!room)
-            return false;
-        const players = room.players;
-        if ((joinerUserData.webSocketID in players) || room.isFull)
-            return false;
-        room.addPlayer(joinerUserData.webSocketID,nickName);
-        joinerUserData.roomID = room.id;
-        wsMap[joinerUserData.webSocketID].send(encodeMsg({
-            type: "joinedRoom",
-            options: {}
-        }))
-        room.broadcastUpdate(joinerUserData.webSocketID);
-        return true;
-    }
-
-    static leave(roomID: string, leaverUserData: UserData) {
-        const room = Room.rooms[roomID];
-        if (!room)
-            return false;
-        const players = room.players;
-        if (!(leaverUserData.webSocketID in players))
-            return false;
-        room.removePlayer(leaverUserData.webSocketID);
-        if ( room.isEmpty )
-            Room.destroy(room.id);
-        leaverUserData.roomID = '';
-        if (wsMap[leaverUserData.webSocketID]) {
-            wsMap[leaverUserData.webSocketID].send(encodeMsg({
-                type: 'leftRoom',
-                options: {}
-            }))
-        }
-        room.broadcastUpdate(leaverUserData.webSocketID);
-        return true;
-    }
-
-    static changeReadyStatus(roomId: string, changerUserData: UserData) {
-        const room = Room.rooms[roomId];
-        if (!room)
-            return false;
-        const players = room.players;
-        const player = players[changerUserData.webSocketID];
-        if (!player)
-            return false;
-        player.isReady = !player.isReady;
-        room.broadcastUpdate(changerUserData.webSocketID);
-        return true;
-    }
-
-    static changePublicStatus(roomID: string) {
-        const room = Room.rooms[roomID];
-        if (!room)
-            return false;
-        room.isPublic = !room.isPublic;
-        room.broadcastUpdate();
-        return true;
-    }
-
-    static getNewID(): string {
-        const charList = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-        const fixedIDLen = 6;
-        const arr = new Uint32Array(1);
-        crypto.getRandomValues(arr);
-        let val = arr[0];
-        let id = '';
-        while (val > 0) {
-            id += charList[val % charList.length];
-            val = (val - val % charList.length) / charList.length;
-        }
-        while (id.length < fixedIDLen) {
-            id += '0';
-        }
-        return id;
-    }
-}
-
-interface roomOptions {
-    isPublic?: boolean;
-    region: string;
-    totalPlayer: number;
-    playerPerTeam: number;
 }
 
 class Player {
     webSocketID: string;
-    name: string;
+    nickName: string;
     isReady: boolean;
     constructor(props: {
         webSocketID: string;
-        name: string;
+        nickName: string;
         isReady: boolean;
     }) {
         this.webSocketID = props.webSocketID;
-        this.name = props.name;
+        this.nickName = props.nickName;
         this.isReady = props.isReady
     }
 
+    public getData(): PlayerData {
+        return {
+            nickName: this.nickName,
+            isReady: this.isReady,
+        };
+    }
+}
+
+export interface RoomData {
+    roomID: string;
+    players: PlayerData[];
+    currentPlayerCount: number;
+    maxPlayerCount: number;
+}
+
+interface PlayerData {
+    nickName: string;
+    isReady: boolean;
 }

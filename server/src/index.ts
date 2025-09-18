@@ -24,7 +24,6 @@ fs.readFile(configFilePath, 'utf8', (err, data) => {
          */
         console.log('Successfully read config file.');
         startRouter(config);
-        Game.readResources();
     } catch (err) {
         console.error(`Error reading config file at ${configFilePath}: ${err}`);
         return ;

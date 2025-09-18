@@ -9,13 +9,13 @@
         <div class="form">
             <div class="form_item">
                 <p class="_font_3">Room Id</p>
-                <input type="text" v-model="presentRoom.id.value" placeholder="">
+                <input type="text" v-model="roomManager.roomID.value" placeholder="">
             </div>
             <div class="form_item">
                 <p class="_font_3">Nickname</p>
-                <input type="text" v-model="presentRoom.nickName.value" placeholder="flower">
+                <input type="text" v-model="roomManager.nickName.value" placeholder="flower">
             </div>
-            <div class="submit_button" @click="presentRoom.join">
+            <div class="submit_button" @click="roomManager.join">
                 <p class="_font_3">Join</p>
             </div>
         </div>
@@ -26,7 +26,7 @@
 import {global} from '@/src/stores/global.ts';
 import {onMounted, ref} from 'vue';
 import gsap from 'gsap';
-import {presentRoom} from "@/src/scripts/room";
+import {roomManager} from "@/src/roomManager";
 
 const store = global();
 

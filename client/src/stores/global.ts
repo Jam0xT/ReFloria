@@ -24,6 +24,9 @@ export const global = defineStore('global', {
 
         show_auth: null as unknown as Function,
         hide_auth: null as unknown as Function,
+
+        show_game: null as unknown as Function,
+        hide_game: null as unknown as Function,
     }),
     actions: {
         first_welcome() { // loading -> welcome
@@ -47,5 +50,8 @@ export const global = defineStore('global', {
         to_join_room(hide: (immediate: Function, next: Function) => void) {
             hide(this.show_joinRoom);
         },
+        to_game(hide: (immediate: Function, next: Function) => void) {
+            hide(this.show_game);
+        }
     }
 });

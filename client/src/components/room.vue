@@ -1,21 +1,20 @@
 <template>
     <div class="room _fullscreen" v-show="room.visible.value">
         <div class="header">
-            <div class="back_button" @click="presentRoom.leave">
+            <div class="back_button" @click="roomManager.leave">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
             </div>
             <div class="room_info">
-                <p class="_font_3">Room: {{ presentRoom.id ?? "" }}</p>
-                <p class="_font_2">Players: {{ presentRoom.nowPlayers }}/{{ presentRoom.maxPlayers }}</p>
+                <p class="_font_3">Room: {{ roomManager.roomID ?? "" }}</p>
+                <p class="_font_2">Players: {{ roomManager.currentPlayerCount }}/{{ roomManager.maxPlayerCount }}</p>
             </div>
         </div>
 
         <div class="player_list">
-            <div class="player_item" v-for="(player, index) in presentRoom.players.value" :key="index">
-                <div class="player_avatar"></div>
-                <p class="_font_2">{{ player.name }}</p>
+            <div class="player_item" v-for="(player, index) in roomManager.players.value" :key="index">
+                <p class="_font_2">{{ player.nickName }}</p>
                 <div class="player_status" :class="{ ready: player.isReady }">
                     {{ player.isReady ? 'Ready' : 'Waiting' }}
                 </div>
@@ -23,23 +22,21 @@
         </div>
 
         <div class="controls">
-            <div class="ready_button" @click="presentRoom.changeReadyStatus">
-                <p class="_font_3">{{ presentRoom.client.isReady ? 'Not ready' : 'Ready' }}</p>
+            <div class="ready_button" @click="roomManager.toggleReady">
+                <p class="_font_3">Ready</p>
             </div>
-            <div class="start_button" v-if="presentRoom.client.isHost" @click="presentRoom.startGame">
-                <p class="_font_3">Start</p>
-            </div>
+<!--            <div class="start_button" v-if="roomManager.isHost" @click="roomManager.startGame">-->
+<!--                <p class="_font_3">Start</p>-->
+<!--            </div>-->
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import {global} from '@/src/stores/global.ts';
-import {onMounted, ref} from 'vue';
+import { global } from '@/src/stores/global.ts';
+import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
-import {presentRoom} from "@/src/scripts/room.ts";
-import {decode} from "@/src/compress";
-import {client} from "@/src/clientData";
+import { roomManager } from "@/src/roomManager.ts";
 
 const store = global();
 
@@ -56,54 +53,13 @@ const room = {
         this.player_item = document.querySelector('.player_item');
         this.controls = document.querySelector('.controls');
 
-        presentRoom.ws.onmessage = (event) => {
-            const data = decode(event.data);
-            console.log(data)
-            switch (data.type) {
-                case "setId":
-                    client.playerName = data.options.id
-                    break
-                case "createdRoom":
-                    store.hide_createRoom(null, () => {
-                        store.show_room();
-                    })
-                    break
-                case "joinedRoom":
-                    store.hide_joinRoom(null,() => {
-                        store.show_room();
-                    });
-                    break
-                case "leftRoom":
-                    store.hide_room(null, () => {
-                        store.show_start();
-                    });
-                    break
-                case "updateRoomStatus":
-                    presentRoom.update(data.options)
-                    break
-                case "changedRoomPublicStatus":
-                    // let msg: {type : string ; id : string} = {
-                    //     type : "deleteRoom",
-                    //     id : player.getRoomId()
-                    // }
-                    // ws.send(JSON.stringify(msg));
-                    break
-                case "deletedRoom":
-                    // console.log("COMPLETED!");
-                    // ws.close();
-                    break
-                default:
-                    console.log("???");
-            }
-            console.log(typeof presentRoom.region);
-        }
+        roomManager.init();
     },
 
     show() {
         if (this.animator?.isActive()) {
-            return;
+            return ;
         }
-        console.log("show room");
         this.visible.value = true;
         this.animator = gsap.timeline()
             .to(this.header, {
@@ -127,6 +83,7 @@ const room = {
     hide(immediate?: Function, next?: Function) {
         if (this.animator?.isActive()) {
             this.animator.kill();
+            // this can cause animation bugs, to be fixed in the future.
         }
         if (immediate) immediate();
 
@@ -136,7 +93,6 @@ const room = {
                 duration: 0.3,
                 ease: 'power3.in',
                 onComplete: () => {
-                    console.log(next);
                     this.visible.value = false;
                     if (next) next();
                 }

@@ -13,7 +13,7 @@ class Player extends Entity
         super({
             hitbox: new Hitbox({
                 position: playerOptions.position,
-                shape: new Circle(1), // NO MAGIC NUMBER
+                radius: 1, // NO MAGIC NUMBER
             }),
             physicalAttributes: {}
         })

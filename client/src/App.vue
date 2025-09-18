@@ -1,12 +1,12 @@
 <template>
-  <Loading />
-  <Background />
-  <Welcome />
-  <Start />
-  <CreateRoom />
-  <JoinRoom />
-  <Room />
-  <Auth />
+    <Loading />
+    <Background />
+    <Welcome />
+    <Start />
+    <CreateRoom />
+    <JoinRoom />
+    <Room />
+    <Game />
 </template>
 
 <script setup lang="ts">
@@ -17,7 +17,7 @@ import Start from '@/src/components/start.vue';
 import CreateRoom from '@/src/components/room/createRoom.vue';
 import JoinRoom from '@/src/components/room/joinRoom.vue';
 import Room from '@/src/components/room.vue';
-import Auth from '@/src/components/auth.vue';
+import Game from '@/src/components/game.vue';
 </script>
 
 <style>

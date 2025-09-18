@@ -56,70 +56,33 @@ export class Vec2 {
     }
 }
 
-export abstract class Shape {
-    protected readonly abstract _type: ShapeType;
-
-    protected constructor() {}
-
-    public get type(): ShapeType {
-        return this._type;
+export function selectFromWeightedPool(pool: Record<string, number>): string {
+    let totalWeight = 0;
+    Object.values(pool).forEach((weight) => {
+        totalWeight += weight;
+    });
+    let randVar = randomInt(1, totalWeight);
+    let found = false;
+    let selectedKey;
+    Object.keys(pool).forEach((key) => {
+        if (!found) {
+            if (pool[key] >= randVar) {
+                selectedKey = key;
+                found = true;
+            }
+            randVar -= pool[key];
+        }
+    });
+    if (!found) {
+        throw new Error();
     }
+    return selectedKey!;
 }
 
-export class Circle extends Shape {
-    _type = ShapeType.CIRCLE;
-
-    private readonly _radius: number;
-    public get radius() { return this._radius; }
-
-    constructor(radius: number) {
-        super();
-        this._radius = radius;
-    }
-}
-
-export class LineSegment extends Shape {
-    _type = ShapeType.LINE_SEGMENT;
-
-    private readonly _radius: number;
-    public get radius() { return this._radius; }
-
-    private readonly _slope: number;
-    public get slope() { return this._slope; }
-
-    constructor(radius: number, slope: number) {
-        super();
-        this._radius = radius;
-        this._slope = slope;
-    }
-}
-
-export class RegularPolygon extends Shape {
-    _type = ShapeType.REGULAR_POLYGON;
-
-    private readonly _radius: number;
-    public get radius() { return this._radius; }
-
-    private readonly _numSides: number;
-    public get numSides() { return this._numSides; }
-
-    private readonly _direction: number;
-    public get direction() { return this._direction; }
-
-    constructor(radius: number, direction: number, numSides: number) {
-        super();
-        this._radius = radius;
-        this._numSides = numSides;
-        this._direction = direction;
-    }
-}
-
-export const enum ShapeType {
-    CIRCLE,
-    LINE_SEGMENT,
-    REGULAR_POLYGON,
-}
-
-export function random(min: number, max: number) {
+export function random(min: number, max: number) { // [min, max)
     return Math.random() * (max - min) + min;
+}
+
+export function randomInt(min: number, max: number) { // [min, max]
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
