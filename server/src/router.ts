@@ -1,6 +1,7 @@
 import { App, WebSocket } from 'uWebSockets.js';
 import { v4 as getUUID_v4 } from 'uuid';
 import Config from './config';
+import { Game } from '@/game/Game';
 
 const app = App();
 const wsMap: Record<string, WebSocket<UserData>> = {}; // WebSocketID -> WebSocket<UserData>
@@ -13,7 +14,8 @@ export function startRouter(config: Config) {
             console.log('Connected to the room api.');
         },
         message: (ws, message) => {
-
+            const parsedMsg = JSON.parse(Buffer.from(message).toString('utf-8'));
+            Game.create(parsedMsg.gameID, {});
         },
         close: (ws, code, message) => {
             console.log('Disconnected from room api.');

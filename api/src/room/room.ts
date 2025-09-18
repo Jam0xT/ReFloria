@@ -137,9 +137,9 @@ export class Room {
     startGame() {
         const newGameID = Room.getNewGameID();
         console.log(`start game ${newGameID}`);
-        // gameServerWebsocket.send(JSON.stringify({
-        //     gameID: newGameID,
-        // }));
+        gameServerWebsocket.send(JSON.stringify({
+            gameID: newGameID,
+        }));
         for (let webSocketID in this._players) {
             wsMap[webSocketID].send(encodeMsg({
                 type: "start",

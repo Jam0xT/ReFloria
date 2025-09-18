@@ -18,7 +18,6 @@ export const roomManager = {
 
         roomManager.ws.onmessage = (event) => {
             const msg: RoomMsgToReceive = decode(event.data);
-            console.log(msg);
             switch (msg.type) {
                 case "createdRoom":
                     store.hide_createRoom(null, () => {
@@ -39,6 +38,7 @@ export const roomManager = {
                     roomManager.update(msg.value);
                     break;
                 case "start":
+                    console.log(store.show_game);
                     store.hide_room(null, () => {
                         store.show_game();
                     })

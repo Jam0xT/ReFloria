@@ -33,10 +33,10 @@
 </template>
 
 <script setup lang="ts">
-import {global} from '@/src/stores/global.ts';
-import {onMounted, ref} from 'vue';
+import { global } from '@/src/stores/global.ts';
+import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
-import {roomManager} from "@/src/roomManager.ts";
+import { roomManager } from "@/src/roomManager.ts";
 
 const store = global();
 
@@ -58,9 +58,8 @@ const room = {
 
     show() {
         if (this.animator?.isActive()) {
-            return;
+            return ;
         }
-        console.log("show room");
         this.visible.value = true;
         this.animator = gsap.timeline()
             .to(this.header, {
@@ -84,6 +83,7 @@ const room = {
     hide(immediate?: Function, next?: Function) {
         if (this.animator?.isActive()) {
             this.animator.kill();
+            // this can cause animation bugs, to be fixed in the future.
         }
         if (immediate) immediate();
 
@@ -93,7 +93,6 @@ const room = {
                 duration: 0.3,
                 ease: 'power3.in',
                 onComplete: () => {
-                    console.log(next);
                     this.visible.value = false;
                     if (next) next();
                 }
