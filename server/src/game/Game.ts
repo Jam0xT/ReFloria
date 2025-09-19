@@ -1,6 +1,4 @@
 import { Loop } from '@/game/Time';
-import { Curse } from '@/game/object/component/Curse';
-import { Effect } from "@/game/object/component/Effect";
 import { World } from '@/game/World';
 import { defaultGameConfig, GameConfig } from "@/game/config/game";
 

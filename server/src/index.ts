@@ -2,8 +2,6 @@ import * as fs from 'fs';
 import * as path from 'path';
 import Config from './config';
 import { startRouter } from './router';
-import { Game } from './game/Game';
-import * as process from "node:process";
 
 const configFilePath = path.join(__dirname, '..', 'config.json');
 
