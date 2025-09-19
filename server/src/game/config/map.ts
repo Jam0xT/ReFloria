@@ -1,5 +1,0 @@
-const maps = {
-    'default': {
-
-    }
-}

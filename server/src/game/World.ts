@@ -1,9 +1,8 @@
 import { DamageInstance, Entity } from "@/game/object/Entity";
 import { selectFromWeightedPool } from "@/game/Math";
+import { worldMaps, WorldMapID } from '@/game/config/worldMap';
 
 class World {
-    private static _mapResources: Record<string, MapConfig> = {};
-
     public static create(worldOptions: WorldOptions): World {
         return new World(worldOptions);
     }
@@ -13,11 +12,6 @@ class World {
         return 'idkseed';
     }
 
-    public static async readMapResources() {
-
-    }
-
-
     private readonly _seed: string;
     public map!: string[][];
     public readonly entities: Entity[] = [];
@@ -25,26 +19,26 @@ class World {
 
     private constructor(worldOptions: WorldOptions) {
         this._seed = worldOptions.seed || World._newSeed();
-        this._generateMap(worldOptions.mapID);
+        this._generateMap(worldOptions.worldMapID);
     }
 
-    private _generateMap(mapID: string) {
-        const mapConfig = World._mapResources[mapID];
-        const gridWidth = Math.ceil(mapConfig.width / mapConfig.biome_size);
-        const gridHeight = Math.ceil(mapConfig.height / mapConfig.biome_size);
-        const algo = mapConfig.generator.algorithm;
-        switch (algo) {
-            case 'random':
-                for (let i = 0; i < gridHeight; i ++) {
-                    for (let j = 0; j < gridWidth; j ++) {
-                        this.map[i][j] = selectFromWeightedPool(mapConfig.generator.pool);
-                    }
-                }
-                break;
-            default:
-                console.log(`Invalid algorithm '${algo}'`);
-                break;
-        }
+    private _generateMap(mapID: WorldMapID) {
+        // const mapConfig = worldMaps[mapID];
+        // const gridWidth = Math.ceil(mapConfig.width / mapConfig.biome_size);
+        // const gridHeight = Math.ceil(mapConfig.height / mapConfig.biome_size);
+        // const algo = mapConfig.generator.algorithm;
+        // switch (algo) {
+        //     case 'random':
+        //         for (let i = 0; i < gridHeight; i ++) {
+        //             for (let j = 0; j < gridWidth; j ++) {
+        //                 this.map[i][j] = selectFromWeightedPool(mapConfig.generator.pool);
+        //             }
+        //         }
+        //         break;
+        //     default:
+        //         console.log(`Invalid algorithm '${algo}'`);
+        //         break;
+        // }
     }
     
     public tick() {
@@ -54,7 +48,7 @@ class World {
 
 interface WorldOptions {
     seed?: string; // 目前这个种子不会有任何用处。
-    mapID: string; // 地图id
+    worldMapID: WorldMapID; // 地图id
 }
 
 interface MapConfig {

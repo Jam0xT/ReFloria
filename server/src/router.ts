@@ -36,7 +36,6 @@ export function startRouter(config: Config) {
         },
         close: (ws, code, message) => {
             const userData = ws.getUserData();
-            const roomID = userData.roomID;
             console.log(`WebSocket connection with ${userData.webSocketID} closed.`);
         }
     }).listen(config.port, (token) => {

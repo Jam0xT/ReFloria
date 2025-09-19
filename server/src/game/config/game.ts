@@ -1,10 +1,15 @@
+import { WorldMapID } from '@/game/config/worldMap';
+
 const defaultGameConfig: GameConfig = {
     ticksPerSecond: 25,
+    chunkSize: 100,
+    worldMapID: 'default',
 }
 
 interface GameConfig {
-    [key: string]: any;
-    ticksPerSecond?: number;
+    ticksPerSecond: number;
+    chunkSize: number;
+    worldMapID: WorldMapID;
 }
 
 export {
