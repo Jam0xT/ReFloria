@@ -33,6 +33,14 @@ export function startRouter(config: Config) {
             const parsedMsg: any = JSON.parse(Buffer.from(message).toString('utf-8'));
             console.log(`Received and parsed message from ${userData.webSocketID}: ${parsedMsg}`);
             // process the parsedMsg
+            if (!userData.gameID) {
+                // when the client first connects to the server
+                const gameID = parsedMsg as string;
+                userData.gameID = gameID;
+                Game.games[gameID]
+                return ;
+            }
+
         },
         close: (ws, code, message) => {
             const userData = ws.getUserData();
@@ -58,5 +66,5 @@ function getNewWebSocketID() {
 
 export interface UserData {
     webSocketID: string,
-    roomID: string,
+    gameID: string,
 }

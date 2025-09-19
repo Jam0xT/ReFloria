@@ -10,10 +10,8 @@
 import { global } from '@/src/stores/global';
 import { onMounted, ref } from 'vue';
 import gsap from 'gsap';
-import { Game } from '@/src/game/game';
+import { game } from '@/src/game/game';
 const store = global();
-
-const game = new Game();
 
 const controller = {
     container: null as null | HTMLElement,

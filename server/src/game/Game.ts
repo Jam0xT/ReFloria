@@ -3,7 +3,7 @@ import { World } from '@/game/World';
 import { defaultGameConfig, GameConfig } from "@/game/config/game";
 
 class Game {
-    public static games: Record<string, Game> = {};
+    public static games: Record<string, Game> = {}; // gameID -> Game
 
     public static create(gameID: string, config: Partial<GameConfig>) {
         config = {...defaultGameConfig, ...config}; // merge the config to defaultConfig so that any undefined value falls back to default
@@ -16,8 +16,6 @@ class Game {
 
     private readonly _mainLoop: Loop;
 
-    private _initialized = false;
-
     private constructor(gameConfig: GameConfig) {
         this.world = World.create({
             worldMapID: gameConfig.worldMapID,
@@ -27,10 +25,6 @@ class Game {
     }
 
     public startMainLoop() {
-        if (!this._initialized) {
-            console.error('Game: Attempt to start Main Loop before initialization.');
-            return null;
-        }
         this._mainLoop.start().then(() => {console.log('Main Loop ended.');});
         return this;
     }
@@ -41,11 +35,6 @@ class Game {
         }
         console.log('Attempting to end Main Loop.');
         this._mainLoop.end();
-    }
-
-    public init() {
-        this._initialized = true;
-        return this;
     }
 }
 

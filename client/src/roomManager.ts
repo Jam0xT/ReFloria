@@ -1,6 +1,7 @@
 import { encode, decode, RoomMsgToSend, RoomMsgToReceive } from "@/src/compress";
 import { ref } from "vue";
 import { global } from "@/src/stores/global";
+import { game } from '@/src/game/game';
 
 export const roomManager = {
     ws: new WebSocket(`ws://${window.location.hostname}:3000/room`),
@@ -41,8 +42,8 @@ export const roomManager = {
                     console.log(store.show_game);
                     store.hide_room(null, () => {
                         store.show_game();
-                    })
-                    // startGame(msg.value.gameID);
+                    });
+                    game.connect(msg.value.gameID);
                     break;
                 default:
                     console.log("Unknown message type received.");
