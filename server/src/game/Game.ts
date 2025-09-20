@@ -5,23 +5,34 @@ import { defaultGameConfig, GameConfig } from "@/game/config/game";
 class Game {
     public static games: Record<string, Game> = {}; // gameID -> Game
 
-    public static create(gameID: string, config: Partial<GameConfig>) {
+    public static create(gameID: string, config: Partial<GameConfig>, playerCount: number) {
         config = {...defaultGameConfig, ...config}; // merge the config to defaultConfig so that any undefined value falls back to default
         const game = new Game(config as GameConfig);
         Game.games[gameID] = game;
+        game._setUpPlayerEntity(playerCount);
         return game;
     }
 
     public readonly world: World;
-
     private readonly _mainLoop: Loop;
+    public readonly config: GameConfig;
+    private _playerEntityIDByWebSocketID: Record<string, string> = {}; // websocket id -> entity id
+    public unassignedPlayerEntityID: string[] = [];
 
     private constructor(gameConfig: GameConfig) {
-        this.world = World.create({
-            worldMapID: gameConfig.worldMapID,
+        this.config = gameConfig;
+        this.world = World.create(this, {
+            worldMapID: this.config.worldMapID,
         });
         const tick = this.world.tick.bind(this.world);
-        this._mainLoop = new Loop(tick, 1000 / gameConfig.ticksPerSecond!);
+        this._mainLoop = new Loop(tick, 1000 / this.config.ticksPerSecond!);
+    }
+
+    private _setUpPlayerEntity(playerCount: number) {
+        const teamCount = Math.ceil(playerCount / this.config.maxTeamSize);
+        for (let i = 0; i < teamCount; i++) {
+            this.world.spawnEntityGroup('player', this.world.getRandomPosition(), this.config.maxTeamSize);
+        }
     }
 
     public startMainLoop() {

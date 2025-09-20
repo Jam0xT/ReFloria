@@ -1,6 +1,3 @@
-/*
-定义：我们称一个拥有几何形状，可以判定与其他几何形状的关系的对象为碰撞箱。
- */
 import { Vec2 } from '@/game/Math';
 
 class Hitbox {

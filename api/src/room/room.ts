@@ -139,6 +139,7 @@ export class Room {
         console.log(`start game ${newGameID}`);
         gameServerWebsocket.send(JSON.stringify({
             gameID: newGameID,
+            playerCount: this._players.length
         }));
         for (let webSocketID in this._players) {
             wsMap[webSocketID].send(encodeMsg({
