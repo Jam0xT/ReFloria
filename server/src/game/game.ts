@@ -1,14 +1,15 @@
 import { Loop } from '@/game/time';
 import { World } from '@/game/world';
 import { defaultGameConfig, GameConfig } from "@/game/config/game";
-import { deepmerge } from "deepmerge-ts";
+import { deepmergeInto } from "deepmerge-ts";
 
 class Game {
     public static games: Record<string, Game> = {}; // gameID -> Game
 
     public static create(gameID: string, config: Partial<GameConfig>, playerCount: number) {
-        config = deepmerge(defaultGameConfig, config); // merge the config to defaultConfig so that any undefined value falls back to default
-        const game = new Game(config as GameConfig);
+        const finalConfig = structuredClone(defaultGameConfig);
+        deepmergeInto(finalConfig, config);
+        const game = new Game(finalConfig);
         Game.games[gameID] = game;
         game._setUpPlayerEntity(playerCount);
         return game;
@@ -17,8 +18,8 @@ class Game {
     public readonly world: World;
     private readonly _mainLoop: Loop;
     public readonly config: GameConfig;
-    private _playerEntityIDByWebSocketID: Record<string, string> = {}; // websocket id -> entity id
-    public unassignedPlayerEntityID: string[] = [];
+    private _playerEntityIDByWebSocketID: Record<string, number> = {}; // websocket id -> entity id
+    public unassignedPlayerEntityID: number[] = [];
 
     private constructor(gameConfig: GameConfig) {
         this.config = gameConfig;
@@ -29,10 +30,29 @@ class Game {
         this._mainLoop = new Loop(tick, 1000 / this.config.ticksPerSecond!);
     }
 
+    public assignPlayer(webSocketID: string): InitialMsg | false {
+        if (this.unassignedPlayerEntityID.length <= 0) {
+            console.log('Not enough player entities.');
+            return false;
+        }
+        const newPlayerEntityID = this.unassignedPlayerEntityID.pop()!;
+        this._playerEntityIDByWebSocketID[webSocketID] = newPlayerEntityID;
+        return {
+            map: this.world.map,
+            position: {
+                x: this.world.entities[newPlayerEntityID].hitbox.position.x,
+                y: this.world.entities[newPlayerEntityID].hitbox.position.y,
+            }
+        };
+    }
+
     private _setUpPlayerEntity(playerCount: number) {
+        console.log(playerCount, this.config.maxTeamSize);
         const teamCount = Math.ceil(playerCount / this.config.maxTeamSize);
+        console.log(`teamCount: ${teamCount}`);
         for (let i = 0; i < teamCount; i++) {
-            this.world.spawnEntityGroup('player', this.world.getRandomPosition(), this.config.maxTeamSize);
+            this.world.spawnEntityGroup('player', this.config.maxTeamSize,
+                this.world.getRandomPosition(), this.config.teamSpreadRadius);
         }
     }
 
@@ -48,6 +68,14 @@ class Game {
         console.log('Attempting to end Main Loop.');
         this._mainLoop.end();
     }
+}
+
+type InitialMsg = {
+    map: string[][];
+    position: {
+        x: number;
+        y: number;
+    };
 }
 
 export {

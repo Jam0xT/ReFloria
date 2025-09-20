@@ -1,8 +1,5 @@
 <template>
     <div class="game _fullscreen" v-show="controller.visible.value">
-        <div class="_font_1">
-            test
-        </div>
     </div>
 </template>
 

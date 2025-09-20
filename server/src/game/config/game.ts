@@ -5,13 +5,15 @@ const defaultGameConfig: GameConfig = {
     chunkSize: 100,
     worldMapID: 'default',
     maxTeamSize: 2,
+    teamSpreadRadius: 20,
 }
 
 interface GameConfig {
     ticksPerSecond: number;
     chunkSize: number;
     worldMapID: WorldMapID;
-    maxTeamSize: 2,
+    maxTeamSize: number;
+    teamSpreadRadius: number;
 }
 
 export {

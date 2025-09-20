@@ -1,14 +1,12 @@
 import { Vec2 } from '@/game/math';
 
 class Hitbox {
-    private readonly _position: Vec2;
-    public get position() { return this._position; }
+    public position: Vec2;
+    public radius: number;
 
-    private readonly _radius: number;
-
-    constructor(hitboxOptions: HitboxOptions) {
-        this._position = hitboxOptions.position;
-        this._radius =  hitboxOptions.radius;
+    constructor(position: Vec2, radius: number) {
+        this.position = position;
+        this.radius = radius;
     }
 
     // checks if this Hitbox intersects with another Hitbox
@@ -16,11 +14,6 @@ class Hitbox {
         // to be implemented
         return false;
     }
-}
-
-interface HitboxOptions {
-    position: Vec2;
-    radius: number;
 }
 
 export default Hitbox;

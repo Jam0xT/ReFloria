@@ -8,20 +8,22 @@ const worldMaps:Record<WorldMapID, WorldMap> = {
         heightChunks: 100,
         generator: {
             pool: {
-                'garden': 1
+                'garden': 1,
+                'desert': 1,
+                'ocean': 2,
             },
             algorithm: 'random',
         }
     }
 }
 
-interface WorldMap {
+type WorldMap = {
     widthChunks: number;
     heightChunks: number;
     generator: WorldMapGenerator;
 }
 
-interface WorldMapGenerator {
+type WorldMapGenerator = {
     pool: Partial<Record<BiomeID, number>>;
     algorithm: 'random';
 }

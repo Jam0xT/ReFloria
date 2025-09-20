@@ -4,21 +4,20 @@ An Entity is what collides with and applies physics to other entities.
 import { Vec2 } from '@/game/math';
 import Hitbox from '@/game/object/hitbox';
 import { Game } from '@/game/game';
+import { entityDefs, EntityDef, EntityType, defaultEntityDef } from '@/game/config/entity';
+import { deepmergeInto } from "deepmerge-ts";
 
-abstract class Entity {
-    protected readonly _hitbox: Hitbox;
-    public get hitbox(): Hitbox {
-        return this._hitbox;
-    }
+class Entity {
+    public hitbox: Hitbox;
+    public velocity: Vec2;
+    public entityID: number;
 
-    private readonly _velocity: Vec2;
-    public get velocity(): Vec2 {
-        return this._velocity;
-    }
-
-    protected constructor(entityOptions: EntityOptions) {
-        this._hitbox = entityOptions.hitbox;
-        this._velocity = Vec2.zero();
+    public constructor(entityType: EntityType, entityID: number, position: Vec2) {
+        this.entityID = entityID;
+        const entityDef = structuredClone(defaultEntityDef);
+        deepmergeInto(entityDef, entityDefs[entityType]);
+        this.hitbox = new Hitbox(position, entityDef.hitbox_radius);
+        this.velocity = Vec2.zero();
     }
 
     /*

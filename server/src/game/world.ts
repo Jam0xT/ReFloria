@@ -1,6 +1,7 @@
 import { DamageInstance, Entity } from "@/game/object/entity";
 import { selectFromWeightedPool, Vec2, random } from "@/game/math";
 import { worldMaps, WorldMapID } from '@/game/config/worldMap';
+import { EntityType } from "@/game/config/entity";
 import { Game } from '@/game/game';
 
 class World {
@@ -13,14 +14,14 @@ class World {
         return 'idkseed';
     }
 
-    private readonly _seed: string;
+    private _seed: string;
     public map!: string[][];
     private _width!: number;
     private _height!: number;
 
-    public readonly entities: Record<number, Entity> = {};
+    public entities: Record<number, Entity> = {};
     private _prevEntityID: number = 0;
-    public readonly damageInstances: DamageInstance[] = [];
+    public damageInstances: DamageInstance[] = [];
     public game: Game;
 
     private constructor(game: Game, worldConfig: WorldConfig) {
@@ -39,9 +40,11 @@ class World {
         this._width = mapConfig.widthChunks * this.game.config.chunkSize;
         this._height = mapConfig.heightChunks * this.game.config.chunkSize;
         const algo = mapConfig.generator.algorithm;
+        this.map = [];
         switch (algo) {
             case 'random':
                 for (let i = 0; i < mapConfig.heightChunks; i ++) {
+                    this.map[i] = [];
                     for (let j = 0; j < mapConfig.widthChunks; j ++) {
                         this.map[i][j] = selectFromWeightedPool(mapConfig.generator.pool);
                     }
@@ -57,14 +60,27 @@ class World {
 
     }
 
-    public spawnEntityGroup(entityType: string, centerPosition: Vec2, count: number) {
-
+    public spawnEntityGroup(entityType: EntityType, count: number
+                            , centerPosition: Vec2, spreadRadius: number) {
+        for (let i = 0; i < count; i++) {
+            this.spawnEntity(
+                entityType,
+                centerPosition.add(
+                    Vec2.createUnit(random(0, Math.PI * 2))
+                        .scale(random(0, spreadRadius))
+                )
+            );
+        }
     }
 
-    public spawnEntity(entityType: string, position: Vec2) {
-
+    public spawnEntity(entityType: EntityType, position: Vec2) {
+        console.log('spawned entity');
+        const newEntityID = this._getNextEntityID();
+        const newEntity = new Entity(entityType, newEntityID, position);
+        this.entities[newEntityID] = newEntity;
         if (entityType == 'player') {
-            this.game.unassignedPlayerEntityID.push(); // push the entity id
+            console.log('spawned player');
+            this.game.unassignedPlayerEntityID.push(newEntityID); // push the entity id
         }
     }
 
@@ -74,8 +90,8 @@ class World {
 }
 
 interface WorldConfig {
-    seed?: string; // 目前这个种子不会有任何用处。
-    worldMapID: WorldMapID; // 地图id
+    seed?: string; // 目前这个种子不会有任何用处
+    worldMapID: WorldMapID;
 }
 
 export {

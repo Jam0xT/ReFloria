@@ -15,6 +15,7 @@ export function startRouter(config: Config) {
         },
         message: (ws, message) => {
             const parsedMsg = JSON.parse(Buffer.from(message).toString('utf-8'));
+            console.log(`Created Game with msg ${JSON.stringify(parsedMsg)}`);
             Game.create(parsedMsg.gameID, {}, parsedMsg.playerCount);
         },
         close: (ws, code, message) => {
@@ -30,16 +31,24 @@ export function startRouter(config: Config) {
         },
         message: (ws, message) => {
             const userData = ws.getUserData();
-            const parsedMsg: any = JSON.parse(Buffer.from(message).toString('utf-8'));
+            let parsedMsg: any = Buffer.from(message).toString('utf-8');
             console.log(`Received and parsed message from ${userData.webSocketID}: ${parsedMsg}`);
             // process the parsedMsg
             if (!userData.gameID) {
                 // when the client first connects to the server
                 const gameID = parsedMsg as string;
                 userData.gameID = gameID;
-                Game.games[gameID]
+                console.log(gameID);
+                const response = Game.games[gameID].assignPlayer(userData.webSocketID);
+                if (response) {
+                    ws.send(JSON.stringify({
+                        type: 'init',
+                        value: response,
+                    }));
+                }
                 return ;
             }
+            parsedMsg = JSON.parse(parsedMsg);
 
         },
         close: (ws, code, message) => {
