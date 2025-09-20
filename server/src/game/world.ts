@@ -1,7 +1,7 @@
-import { DamageInstance, Entity } from "@/game/object/Entity";
-import { selectFromWeightedPool, Vec2, random } from "@/game/Math";
+import { DamageInstance, Entity } from "@/game/object/entity";
+import { selectFromWeightedPool, Vec2, random } from "@/game/math";
 import { worldMaps, WorldMapID } from '@/game/config/worldMap';
-import { Game } from '@/game/Game';
+import { Game } from '@/game/game';
 
 class World {
     public static create(game: Game, worldOptions: WorldConfig): World {

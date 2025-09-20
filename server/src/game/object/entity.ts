@@ -1,9 +1,9 @@
 /*
 An Entity is what collides with and applies physics to other entities.
  */
-import { Vec2 } from '@/game/Math';
-import Hitbox from '@/game/object/Hitbox';
-import { Game } from '@/game/Game'
+import { Vec2 } from '@/game/math';
+import Hitbox from '@/game/object/hitbox';
+import { Game } from '@/game/game';
 
 abstract class Entity {
     protected readonly _hitbox: Hitbox;

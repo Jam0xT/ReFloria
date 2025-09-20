@@ -1,12 +1,13 @@
-import { Loop } from '@/game/Time';
-import { World } from '@/game/World';
+import { Loop } from '@/game/time';
+import { World } from '@/game/world';
 import { defaultGameConfig, GameConfig } from "@/game/config/game";
+import { deepmerge } from "deepmerge-ts";
 
 class Game {
     public static games: Record<string, Game> = {}; // gameID -> Game
 
     public static create(gameID: string, config: Partial<GameConfig>, playerCount: number) {
-        config = {...defaultGameConfig, ...config}; // merge the config to defaultConfig so that any undefined value falls back to default
+        config = deepmerge(defaultGameConfig, config); // merge the config to defaultConfig so that any undefined value falls back to default
         const game = new Game(config as GameConfig);
         Game.games[gameID] = game;
         game._setUpPlayerEntity(playerCount);

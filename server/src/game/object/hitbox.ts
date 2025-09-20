@@ -1,4 +1,4 @@
-import { Vec2 } from '@/game/Math';
+import { Vec2 } from '@/game/math';
 
 class Hitbox {
     private readonly _position: Vec2;

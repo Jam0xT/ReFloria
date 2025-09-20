@@ -1,8 +1,8 @@
-import { Entity, PhysicalAttributes } from '@/game/object/Entity';
+import { Entity, PhysicalAttributes } from '@/game/object/entity';
 import { Effect, Effectable } from "@/game/object/component/Effect";
 import { Curse, Cursable } from "@/game/object/component/Curse";
-import Hitbox from "@/game/object/Hitbox";
-import { Vec2, Circle } from '@/game/Math';
+import Hitbox from "@/game/object/hitbox";
+import { Vec2, Circle } from '@/game/math';
 
 class Player extends Entity
     implements Effectable, Cursable {
