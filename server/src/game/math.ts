@@ -56,21 +56,24 @@ export class Vec2 {
     public rotate(radiansCounterClockwise: number) { return this.set(Vec2.createUnit(this.direction + radiansCounterClockwise).scale(this.magnitude)); };
 }
 
-export function selectFromWeightedPool(pool: Record<string, number>): string {
+export function selectFromWeightedPool<T extends string | number>(pool: Partial<Record<T, number>>): T {
     let totalWeight = 0;
     Object.values(pool).forEach((weight) => {
-        totalWeight += weight;
+        totalWeight += weight as number;
     });
     let randVar = randomInt(1, totalWeight);
     let found = false;
-    let selectedKey;
+    let selectedKey: T;
     Object.keys(pool).forEach((key) => {
+        const typedKey = key as T;
         if (!found) {
-            if (pool[key] >= randVar) {
-                selectedKey = key;
+            if (pool[typedKey] === undefined )
+                return ;
+            if (pool[typedKey] >= randVar) {
+                selectedKey = typedKey;
                 found = true;
             }
-            randVar -= pool[key];
+            randVar -= pool[typedKey];
         }
     });
     if (!found) {

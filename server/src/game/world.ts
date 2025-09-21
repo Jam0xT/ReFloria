@@ -1,6 +1,7 @@
 import { DamageInstance, Entity } from "@/game/object/entity";
 import { selectFromWeightedPool, Vec2, random } from "@/game/math";
 import { worldMaps, WorldMapID } from '@/game/config/worldMap';
+import { BiomeType } from "@/game/config/biome";
 import { EntityType } from "@/game/config/entity";
 import { Game } from '@/game/game';
 
@@ -9,24 +10,20 @@ class World {
         return new World(game, worldOptions);
     }
 
-    private static _newSeed() {
-        // to be implemented
-        return 'idkseed';
-    }
-
-    private _seed: string;
     public map!: string[][];
+    public chunks: Record<number, Chunk> = {}; // chunk id -> chunk
     private _width!: number;
     private _height!: number;
+    private _widthChunks!: number;
+    private _heightChunks!: number;
 
     public entities: Record<number, Entity> = {};
     private _prevEntityID: number = 0;
-    public damageInstances: DamageInstance[] = [];
     public game: Game;
+    public tickCount: number = 0;
 
     private constructor(game: Game, worldConfig: WorldConfig) {
         this.game = game;
-        this._seed = worldConfig.seed || World._newSeed();
         this._generateMap(worldConfig.worldMapID);
     }
 
@@ -35,18 +32,21 @@ class World {
         return this._prevEntityID;
     }
 
-    private _generateMap(mapID: WorldMapID) {
-        const mapConfig = worldMaps[mapID];
-        this._width = mapConfig.widthChunks * this.game.config.chunkSize;
-        this._height = mapConfig.heightChunks * this.game.config.chunkSize;
-        const algo = mapConfig.generator.algorithm;
-        this.map = [];
+    private _generateMap(worldMapID: WorldMapID) {
+        const worldMap = worldMaps[worldMapID];
+        this._widthChunks = worldMap.widthChunks;
+        this._heightChunks = worldMap.heightChunks;
+        this._width = this._widthChunks * this.game.config.chunkSize;
+        this._height = this._heightChunks * this.game.config.chunkSize;
+        const algo = worldMap.generator.algorithm;
         switch (algo) {
             case 'random':
-                for (let i = 0; i < mapConfig.heightChunks; i ++) {
-                    this.map[i] = [];
-                    for (let j = 0; j < mapConfig.widthChunks; j ++) {
-                        this.map[i][j] = selectFromWeightedPool(mapConfig.generator.pool);
+                for (let i = 0; i < this._heightChunks; i ++) {
+                    for (let j = 0; j < this._widthChunks; j ++) {
+                        this.chunks[i * this._heightChunks + j] = {
+                            biome: selectFromWeightedPool<BiomeType>(worldMap.generator.pool),
+                            entityIDs: [],
+                        }
                     }
                 }
                 break;
@@ -57,7 +57,7 @@ class World {
     }
     
     public tick() {
-
+        this.tickCount ++;
     }
 
     public spawnEntityGroup(entityType: EntityType, count: number
@@ -89,8 +89,12 @@ class World {
     }
 }
 
-interface WorldConfig {
-    seed?: string; // 目前这个种子不会有任何用处
+type Chunk = {
+    biome: BiomeType;
+    entityIDs: number[];
+}
+
+type WorldConfig = {
     worldMapID: WorldMapID;
 }
 

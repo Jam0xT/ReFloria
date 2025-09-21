@@ -1,22 +1,20 @@
-type BiomeID = 'garden' | 'desert' | 'ocean';
-
-const biomes:Record<BiomeID, Biome> = {
-    'garden': {
-
-    },
-    'desert': {
-
-    },
-    'ocean': {
-
-    }
+enum BiomeType {
+    garden,
+    desert,
+    ocean,
 }
 
-interface Biome {
+const biomes:Record<BiomeType, Biome> = {
+    [BiomeType.garden]: {},
+    [BiomeType.desert]: {},
+    [BiomeType.ocean]: {},
+}
+
+type Biome = {
 
 }
 
 export {
     biomes,
-    BiomeID,
+    BiomeType,
 }

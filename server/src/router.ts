@@ -64,6 +64,10 @@ export function startRouter(config: Config) {
     });
 }
 
+function compressGameMsg() {
+
+}
+
 export function sendMessage(webSocketID: string, msg: any) {
     wsMap[webSocketID].send(JSON.stringify(msg));
     return true;

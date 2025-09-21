@@ -35,7 +35,7 @@ export class World {
             }
         }
         if (this.isRendering) {
-            requestAnimationFrame(this.render.bind(this));
+            // requestAnimationFrame(this.render.bind(this));
         }
     }
 

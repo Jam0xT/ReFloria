@@ -37,13 +37,7 @@ class Game {
         }
         const newPlayerEntityID = this.unassignedPlayerEntityID.pop()!;
         this._playerEntityIDByWebSocketID[webSocketID] = newPlayerEntityID;
-        return {
-            map: this.world.map,
-            position: {
-                x: this.world.entities[newPlayerEntityID].hitbox.position.x,
-                y: this.world.entities[newPlayerEntityID].hitbox.position.y,
-            }
-        };
+        return false; // should return the map
     }
 
     private _setUpPlayerEntity(playerCount: number) {

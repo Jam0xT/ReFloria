@@ -6,6 +6,9 @@ const defaultGameConfig: GameConfig = {
     worldMapID: 'default',
     maxTeamSize: 2,
     teamSpreadRadius: 20,
+    naturalSpawnCycleTicks: 125,
+    activeRadius: 500,
+    unloadRadius: 1000,
 }
 
 interface GameConfig {
@@ -14,6 +17,9 @@ interface GameConfig {
     worldMapID: WorldMapID;
     maxTeamSize: number;
     teamSpreadRadius: number;
+    naturalSpawnCycleTicks: number;
+    activeRadius: number;
+    unloadRadius: number;
 }
 
 export {

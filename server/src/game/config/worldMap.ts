@@ -1,4 +1,4 @@
-import { BiomeID } from './biome';
+import { BiomeType } from './biome';
 
 type WorldMapID = 'default';
 
@@ -8,9 +8,9 @@ const worldMaps:Record<WorldMapID, WorldMap> = {
         heightChunks: 100,
         generator: {
             pool: {
-                'garden': 1,
-                'desert': 1,
-                'ocean': 2,
+                [BiomeType.garden]: 1,
+                [BiomeType.desert]: 1,
+                [BiomeType.ocean]: 2,
             },
             algorithm: 'random',
         }
@@ -24,7 +24,7 @@ type WorldMap = {
 }
 
 type WorldMapGenerator = {
-    pool: Partial<Record<BiomeID, number>>;
+    pool: Partial<Record<BiomeType, number>>;
     algorithm: 'random';
 }
 
