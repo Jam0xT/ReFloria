@@ -1,16 +1,25 @@
 import { Vec2 } from '@/src/math';
 import { Game } from '@/src/game/game';
+import { BiomeType } from '@/src/game/config/biome';
 
 export class World {
     private _canvas: HTMLCanvasElement;
     private _camera: Camera = new Camera(1, Vec2.zero());
 
     public game: Game;
-    public worldMap: string[][];
+    public chunkSize: number;
+    public widthChunks: number;
+    public heightChunks: number;
+    public worldMapBiome: BiomeType[];
+    public entities: Record<number, Entity> = {};
     public isRendering: boolean = false;
 
     constructor(game: Game) {
         this.game = game;
+        const canvas = document.createElement('canvas');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        this._canvas = canvas;
     }
 
     render() {
@@ -40,19 +49,11 @@ export class World {
     }
 
     startRender() {
-        const canvas = document.createElement('canvas');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        this._canvas = canvas;
         this.game.container.appendChild(canvas);
 
         this.isRendering = true;
         console.log(this.worldMap);
         requestAnimationFrame(this.render.bind(this));
-    }
-
-    setMap(worldMap: string[][]) {
-        this.worldMap = worldMap;
     }
 
     setCameraPosition(position: Vec2) {

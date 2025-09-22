@@ -6,7 +6,7 @@ export class Game {
 
     public container: HTMLElement;
 
-    public world: World;
+    public world: World = new World(this);
 
     constructor() {}
 
@@ -16,21 +16,34 @@ export class Game {
             this._ws.send(gameID);
         }
         this._ws.onmessage = (event: Event) => {
-            const msg = JSON.parse(event.data);
-            switch (msg.type) {
-                case "init":
-                    this.world = new World(this);
-                    this.world.setMap(msg.value.map);
-                    this.world.setCameraPosition(
-                        new Vec2(
-                            msg.value.position.x,
-                            msg.value.position.y,
-                        )
-                    );
+            const buffer: ArrayBuffer = event.data;
+            let byteOffset = 0;
+            const header = new Uint8Array(buffer, byteOffset, 1);
+            byteOffset += 8;
+            switch (header[0]) {
+                case PackageHeader.initial:
+                    const chunkSize = new Uint32Array(buffer, byteOffset, 1);
+                    this.world.chunkSize = chunkSize[0];
+                    byteOffset += 8;
+
+                    const widthChunks = new Uint32Array(buffer, byteOffset, 1);
+                    this.world.widthChunks = widthChunks[0];
+                    const heightChunks = new Uint32Array(buffer, byteOffset, 1);
+                    this.world.heightChunks = heightChunks[0];
+                    byteOffset += 8;
+
+                    for (let i = 0; i < widthChunks * heightChunks; i++) {
+                        const biomeType = new Uint8Array(buffer, byteOffset, 1);
+                        this.world.worldMapBiome[i] = biomeType[0];
+                        byteOffset += 1;
+                    }
+
                     this.startRender();
                     break;
+                case PackageHeader.stream:
+                    break;
                 default:
-                    console.log('Unknown msg type from game server.');
+                    console.log('unknown header ', header[0]);
             }
         }
     }
@@ -45,3 +58,8 @@ export class Game {
 }
 
 export const game = new Game();
+
+enum PackageHeader {
+    initial,
+    stream,
+}

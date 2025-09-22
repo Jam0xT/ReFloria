@@ -96,6 +96,16 @@ class Game {
         header[0] = PackageHeader.initial;
         byteOffset += 8;
 
+        const chunkSize = new Uint32Array(buffer, byteOffset, 1);
+        chunkSize[0] = pkg.chunkSize;
+        byteOffset += 8;
+
+        const widthChunks = new Uint32Array(buffer, byteOffset, 1);
+        widthChunks[0] = pkg.widthChunks;
+        const heightChunks = new Uint32Array(buffer, byteOffset + 4, 1);
+        heightChunks[0] = pkg.heightChunks;
+        byteOffset += 8;
+
         pkg.worldMapBiome.forEach(value => {
             const biomeType = new Uint8Array(buffer, byteOffset, 1);
             biomeType[0] = value;
@@ -126,14 +136,6 @@ class Game {
         console.log('Attempting to end Main Loop.');
         this._mainLoop.end();
     }
-}
-
-type InitialMsg = {
-    map: string[][];
-    position: {
-        x: number;
-        y: number;
-    };
 }
 
 export {

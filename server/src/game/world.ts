@@ -67,7 +67,10 @@ class World {
 
     public getInitialDataPackage(): InitialDataPackage {
         const result: InitialDataPackage = {
-            worldMapBiome: []
+            chunkSize: this._chunkSize,
+            widthChunks: this._widthChunks,
+            heightChunks: this._heightChunks,
+            worldMapBiome: [],
         };
         for (let i = 0; i < this._heightChunks; i ++) {
             for (let j = 0; j < this._widthChunks; j ++) {
@@ -167,6 +170,9 @@ type EntityStreamData = {
 }
 
 type InitialDataPackage = {
+    chunkSize: number;
+    widthChunks: number;
+    heightChunks: number;
     worldMapBiome: BiomeType[];
 }
 
