@@ -11,9 +11,11 @@ class Entity {
     public hitbox: Hitbox;
     public velocity: Vec2;
     public entityID: number;
+    public type: EntityType;
 
     public constructor(entityType: EntityType, entityID: number, position: Vec2) {
         this.entityID = entityID;
+        this.type = entityType;
         const entityDef = structuredClone(defaultEntityDef);
         deepmergeInto(entityDef, entityDefs[entityType]);
         this.hitbox = new Hitbox(position, entityDef.hitbox_radius);

@@ -10,10 +10,13 @@ class World {
         return new World(game, worldOptions);
     }
 
-    public map!: string[][];
-    public chunks: Record<number, Chunk> = {}; // chunk id -> chunk
+    public map!: string[][]; // abandoned. will delete soon
+
+    // chunk id -> chunk; chunk id = y * w + x; top left(0, 0); bottom right(w, h)
+    public chunks: Record<number, Chunk> = {};
     private _width!: number;
     private _height!: number;
+    private _chunkSize: number;
     private _widthChunks!: number;
     private _heightChunks!: number;
 
@@ -24,6 +27,7 @@ class World {
 
     private constructor(game: Game, worldConfig: WorldConfig) {
         this.game = game;
+        this._chunkSize = this.game.config.chunkSize;
         this._generateMap(worldConfig.worldMapID);
     }
 
@@ -60,6 +64,50 @@ class World {
         this.tickCount ++;
     }
 
+    public getStreamDataPackage(entityID: number): StreamDataPackage {
+        const subjectPos = this.entities[entityID].hitbox.position;
+
+        const result: StreamDataPackage = {
+            timeStamp: Date.now(),
+            x: subjectPos.x,
+            y: subjectPos.y,
+            entities: {},
+        };
+
+        const chunkX = Math.floor(result.x / this._chunkSize);
+        const chunkY =  Math.floor(result.y / this._chunkSize);
+        const maxLoadRadiusChunks = Math.ceil(this.game.config.unloadRadius / this._chunkSize);
+
+        for (let i = Math.max(0, chunkX - maxLoadRadiusChunks); i <= Math.min(this._widthChunks - 1, chunkX + maxLoadRadiusChunks); i++) {
+            for (let j = Math.max(0, chunkY - maxLoadRadiusChunks); j <= Math.min(this._heightChunks - 1, chunkY + maxLoadRadiusChunks); j++) {
+                const chunkCenter = new Vec2(
+                    i * this._chunkSize + this._chunkSize / 2,
+                    j * this._chunkSize + this._chunkSize / 2,
+                );
+                const distance = chunkCenter.sub(subjectPos).magnitude;
+                if (distance < this.game.config.unloadRadius) {
+                    this.chunks[j * this._widthChunks + i].entityIDs.forEach(entityID => {
+                        const entity = this.entities[entityID];
+                        result.entities[entityID] = {
+                            x: entity.hitbox.position.x,
+                            y: entity.hitbox.position.y,
+                            type: entity.type,
+                            id: entityID,
+                        };
+                    });
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public getChunkIDByPosition(position: Vec2): number {
+        const x = Math.floor(position.x / this.game.config.chunkSize);
+        const y = Math.floor(position.y / this.game.config.chunkSize);
+        return y * this._widthChunks + x;
+    }
+
     public spawnEntityGroup(entityType: EntityType, count: number
                             , centerPosition: Vec2, spreadRadius: number) {
         for (let i = 0; i < count; i++) {
@@ -78,15 +126,30 @@ class World {
         const newEntityID = this._getNextEntityID();
         const newEntity = new Entity(entityType, newEntityID, position);
         this.entities[newEntityID] = newEntity;
-        if (entityType == 'player') {
+        this.chunks[this.getChunkIDByPosition(position)].entityIDs.push(newEntityID);
+        if (entityType == EntityType.player) {
             console.log('spawned player');
-            this.game.unassignedPlayerEntityID.push(newEntityID); // push the entity id
+            this.game.unassignedPlayerEntityID.push(newEntityID);
         }
     }
 
     public getRandomPosition(): Vec2 {
         return new Vec2(random(0, this._width), random(0, this._height));
     }
+}
+
+type StreamDataPackage = {
+    timeStamp: number;
+    x: number;
+    y: number;
+    entities: Record<number, EntityStreamData>;
+}
+
+type EntityStreamData = {
+    type: EntityType;
+    id: number;
+    x: number;
+    y: number;
 }
 
 type Chunk = {
@@ -100,4 +163,5 @@ type WorldConfig = {
 
 export {
     World,
+    StreamDataPackage,
 }

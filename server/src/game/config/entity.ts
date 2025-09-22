@@ -1,6 +1,8 @@
 import { PartialNested } from "@/game/object";
 
-type EntityType = 'player';
+enum EntityType {
+    player,
+}
 
 const defaultEntityDef: EntityDef = {
     max_hp: 10,
@@ -11,7 +13,7 @@ const defaultEntityDef: EntityDef = {
 }
 
 const entityDefs: Record<EntityType, PartialNested<EntityDef>> = {
-    'player': {},
+    [EntityType.player]: {},
 }
 
 type EntityDef = {

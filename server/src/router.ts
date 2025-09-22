@@ -64,12 +64,8 @@ export function startRouter(config: Config) {
     });
 }
 
-function compressGameMsg() {
-
-}
-
-export function sendMessage(webSocketID: string, msg: any) {
-    wsMap[webSocketID].send(JSON.stringify(msg));
+export function sendMessage(webSocketID: string, msg: ArrayBuffer) {
+    wsMap[webSocketID].send(msg);
     return true;
 }
 
