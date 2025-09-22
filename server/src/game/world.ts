@@ -14,6 +14,7 @@ class World {
 
     // chunk id -> chunk; chunk id = y * w + x; top left(0, 0); bottom right(w, h)
     public chunks: Record<number, Chunk> = {};
+
     private _width!: number;
     private _height!: number;
     private _chunkSize: number;
@@ -62,6 +63,19 @@ class World {
     
     public tick() {
         this.tickCount ++;
+    }
+
+    public getInitialDataPackage(): InitialDataPackage {
+        const result: InitialDataPackage = {
+            worldMapBiome: []
+        };
+        for (let i = 0; i < this._heightChunks; i ++) {
+            for (let j = 0; j < this._widthChunks; j ++) {
+                const chunkID = i * this._widthChunks + j;
+                result.worldMapBiome[chunkID] = this.chunks[chunkID].biome;
+            }
+        }
+        return result;
     }
 
     public getStreamDataPackage(entityID: number): StreamDataPackage {
@@ -152,6 +166,10 @@ type EntityStreamData = {
     y: number;
 }
 
+type InitialDataPackage = {
+    worldMapBiome: BiomeType[];
+}
+
 type Chunk = {
     biome: BiomeType;
     entityIDs: number[];
@@ -164,4 +182,5 @@ type WorldConfig = {
 export {
     World,
     StreamDataPackage,
+    InitialDataPackage,
 }

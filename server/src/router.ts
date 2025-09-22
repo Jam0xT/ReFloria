@@ -39,13 +39,7 @@ export function startRouter(config: Config) {
                 const gameID = parsedMsg as string;
                 userData.gameID = gameID;
                 console.log(gameID);
-                const response = Game.games[gameID].assignPlayer(userData.webSocketID);
-                if (response) {
-                    ws.send(JSON.stringify({
-                        type: 'init',
-                        value: response,
-                    }));
-                }
+                Game.games[gameID].assignPlayer(userData.webSocketID);
                 return ;
             }
             parsedMsg = JSON.parse(parsedMsg);
@@ -76,4 +70,9 @@ function getNewWebSocketID() {
 export interface UserData {
     webSocketID: string,
     gameID: string,
+}
+
+export enum PackageHeader {
+    initial,
+    stream,
 }

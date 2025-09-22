@@ -1,9 +1,10 @@
 import { Loop } from '@/game/time';
-import { World, StreamDataPackage } from '@/game/world';
+import {World, StreamDataPackage, InitialDataPackage} from '@/game/world';
 import { defaultGameConfig, GameConfig } from "@/game/config/game";
 import { sendMessage } from "@/router";
 import { deepmergeInto } from "deepmerge-ts";
 import { EntityType } from "@/game/config/entity";
+import { PackageHeader } from "@/router";
 
 class Game {
     public static games: Record<string, Game> = {}; // gameID -> Game
@@ -30,31 +31,32 @@ class Game {
         });
         const tick = () => {
             this.world.tick.bind(this.world);
-            Object.keys(this._playerEntityIDByWebSocketID).forEach(wsID => {
-                const pkg = this.world.getStreamDataPackage(this._playerEntityIDByWebSocketID[wsID]);
-                sendMessage(wsID, this._streamDataPackageToArrayBuffer(pkg));
+            Object.keys(this._playerEntityIDByWebSocketID).forEach(webSocketID => {
+                const pkg = this.world.getStreamDataPackage(this._playerEntityIDByWebSocketID[webSocketID]);
+                sendMessage(webSocketID, this._streamDataPackageToArrayBuffer(pkg));
             });
         };
         this._mainLoop = new Loop(tick, 1000 / this.config.ticksPerSecond!);
     }
 
     private _streamDataPackageToArrayBuffer(pkg: StreamDataPackage): ArrayBuffer {
-        const totalByteLength = 8 + 8 + 8 + Object.keys(pkg.entities).length * (4 + 2 + 8 + 8);
+        const totalByteLength = 8 + 8 + 8 + 8 + Object.keys(pkg.entities).length * (4 + 2 + 8 + 8);
 
         const buffer = new ArrayBuffer(totalByteLength);
         let byteOffset = 0;
 
-        // [8*0, 8*1)
+        const header = new Uint8Array(buffer, byteOffset, 1);
+        header[0] = PackageHeader.stream;
+        byteOffset += 8;
+
         const timeStamp = new BigUint64Array(buffer, byteOffset, 1);
         timeStamp[0] = BigInt(pkg.timeStamp);
         byteOffset += 8;
 
-        // [8*1, 8*2)
         const x = new Float64Array(buffer, byteOffset, 1);
         x[0] = pkg.x;
         byteOffset += 8;
 
-        // [8*2, 8*3)
         const y = new Float64Array(buffer, byteOffset, 1);
         y[0] = pkg.y;
         byteOffset += 8;
@@ -76,14 +78,30 @@ class Game {
         return buffer;
     }
 
-    public assignPlayer(webSocketID: string): InitialMsg | false {
+    public assignPlayer(webSocketID: string) {
         if (this.unassignedPlayerEntityID.length <= 0) {
             console.log('Not enough player entities.');
-            return false;
+            return ;
         }
         const newPlayerEntityID = this.unassignedPlayerEntityID.pop()!;
         this._playerEntityIDByWebSocketID[webSocketID] = newPlayerEntityID;
-        return false; // should return the map
+        sendMessage(webSocketID, this._initialDataPackageToArrayBuffer(this.world.getInitialDataPackage()));
+    }
+
+    private _initialDataPackageToArrayBuffer(pkg: InitialDataPackage): ArrayBuffer {
+        const totalByteLength = 8 + pkg.worldMapBiome.length;
+        const buffer = new ArrayBuffer(totalByteLength);
+        let byteOffset = 0;
+        const header = new Uint8Array(buffer, byteOffset, 1);
+        header[0] = PackageHeader.initial;
+        byteOffset += 8;
+
+        pkg.worldMapBiome.forEach(value => {
+            const biomeType = new Uint8Array(buffer, byteOffset, 1);
+            biomeType[0] = value;
+            byteOffset += 1;
+        });
+        return buffer;
     }
 
     private _setUpPlayerEntity(playerCount: number) {
