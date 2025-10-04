@@ -1,6 +1,7 @@
-import { Vec2 } from '@/src/math';
+import { Vec2, lerp } from '@/src/math';
 import { Game } from '@/src/game/game';
 import { BiomeType } from '@/src/game/config/biome';
+import { EntityType } from '@/src/game/config/entity';
 
 export class World {
     private _canvas: HTMLCanvasElement;
@@ -23,29 +24,48 @@ export class World {
     }
 
     render() {
+        this.update();
+
         const ctx = this._canvas.getContext('2d');
         console.log(this._canvas.width, this._canvas.height);
-        for (let i = 0; i < this.worldMap.length; i++) {
-            for (let j = 0; j < this.worldMap[i].length; j++) {
-                switch (this.worldMap[i][j]) {
-                    case 'garden':
-                        ctx.fillStyle = 'green';
-                        break;
-                    case 'desert':
-                        ctx.fillStyle = 'yellow';
-                        break;
-                    case 'ocean':
-                        ctx.fillStyle = 'blue';
-                        break;
-                    default:
-                        ctx.fillStyle = 'black';
-                }
-                ctx.fillRect(i*10, j*10, 10, 10);
-            }
-        }
+
+
+
         if (this.isRendering) {
-            // requestAnimationFrame(this.render.bind(this));
+            requestAnimationFrame(this.render.bind(this));
         }
+    }
+
+    // get data from State to render the current frame
+    update() {
+        const state = game.state;
+        const baseIndex = state.getBasePackageIndex();
+        const localTimeStamp = Date.now();
+        if (baseIndex < 0 || baseIndex === state.pkgArray.length - 1) {
+            const pkg = state.pkgArray[state.pkgArray.length - 1];
+
+        } else {
+            const basePkg = state.pkgArray[baseIndex], nextPkg = state.pkgArray[baseIndex + 1];
+            const ratio = (localTimeStamp - basePkg.timeStamp) / (nextPkg.timeStamp - basePkg.timeStamp);
+            this._camera.setTarget(new Vec2(
+                lerp(basePkg.x, nextPkg.x, ratio),
+                lerp(basePkg.y, nextPkg.y, ratio)
+            ));
+            Object.values(basePkg.entities).forEach(entity => {
+                const x = lerp(basePkg.entities[entity.id].x, nextPkg.entities[entity.id].x, ratio);
+                const y = lerp(basePkg.entities[entity.id].y, nextPkg.entities[entity.id].y, ratio);
+                if ( this.entities[entity.id] ) {
+                    this.entities[entity.id].x = x;
+                    this.entities[entity.id].y = y;
+                } else {
+                    this.entities[entity.id] = {
+                        x: x,
+                        y: y,
+                        type: entity.type,
+                    };
+                }
+            });
+        }1
     }
 
     startRender() {
@@ -55,22 +75,31 @@ export class World {
         console.log(this.worldMap);
         requestAnimationFrame(this.render.bind(this));
     }
-
-    setCameraPosition(position: Vec2) {
-        this._camera.setPosition(position);
-    }
 }
 
 class Camera {
+    public static EASING_COEFFICIENT = 0.2;
+
     public zoom: number;
     public position: Vec2;
+    public target: Vec2;
 
     constructor(zoom: number, position: Vec2) {
         this.zoom = zoom;
         this.position = position;
     }
 
-    setPosition(position: Vec2) {
-        this.position = position;
+    setTarget(position: Vec2) {
+        this.target = position;
     }
+
+    update() {
+        this.position.add(this.target.sub(this.position).scale(Camera.EASING_COEFFICIENT));
+    }
+}
+
+type Entity = {
+    type: EntityType;
+    x: number;
+    y: number;
 }

@@ -16,7 +16,8 @@ export function startRouter(config: Config) {
         message: (ws, message) => {
             const parsedMsg = JSON.parse(Buffer.from(message).toString('utf-8'));
             console.log(`Created Game with msg ${JSON.stringify(parsedMsg)}`);
-            Game.create(parsedMsg.gameID, {}, parsedMsg.playerCount);
+            Game.create(parsedMsg.gameID, {}, parsedMsg.playerCount)
+                .startMainLoop();
         },
         close: (ws, code, message) => {
             console.log('Disconnected from room api.');

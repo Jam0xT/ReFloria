@@ -1,5 +1,6 @@
 import { World } from './World';
 import { Vec2 } from '@/src/math';
+import { State } from './State';
 
 export class Game {
     private _ws: WebSocket;
@@ -7,6 +8,8 @@ export class Game {
     public container: HTMLElement;
 
     public world: World = new World(this);
+
+    public state: State = new State(this);
 
     constructor() {}
 
@@ -39,8 +42,10 @@ export class Game {
                     }
 
                     this.startRender();
+                    this.state.init();
                     break;
                 case PackageHeader.stream:
+                    this.state.process(buffer);
                     break;
                 default:
                     console.log('unknown header ', header[0]);

@@ -86,3 +86,7 @@ export function random(min: number, max: number) { // [min, max)
 export function randomInt(min: number, max: number) { // [min, max]
     return Math.floor(Math.random() * (max - min + 1) + min);
 }
+
+export function lerp(l: number, r: number, ratio: number) {
+    return l + (r - l) * ratio;
+}

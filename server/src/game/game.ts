@@ -29,14 +29,18 @@ class Game {
         this.world = World.create(this, {
             worldMapID: this.config.worldMapID,
         });
-        const tick = () => {
-            this.world.tick.bind(this.world);
-            Object.keys(this._playerEntityIDByWebSocketID).forEach(webSocketID => {
-                const pkg = this.world.getStreamDataPackage(this._playerEntityIDByWebSocketID[webSocketID]);
-                sendMessage(webSocketID, this._streamDataPackageToArrayBuffer(pkg));
-            });
-        };
-        this._mainLoop = new Loop(tick, 1000 / this.config.ticksPerSecond!);
+        this._mainLoop = new Loop(
+            this._tick.bind(this),
+            1000 / this.config.ticksPerSecond
+        );
+    }
+
+    private _tick() {
+        this.world.tick.bind(this.world);
+        Object.keys(this._playerEntityIDByWebSocketID).forEach(webSocketID => {
+            const pkg = this.world.getStreamDataPackage(this._playerEntityIDByWebSocketID[webSocketID]);
+            sendMessage(webSocketID, this._streamDataPackageToArrayBuffer(pkg));
+        });
     }
 
     private _streamDataPackageToArrayBuffer(pkg: StreamDataPackage): ArrayBuffer {
